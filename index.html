@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create and explore an ontology in Microsoft Fabric | fabric-labs</title>
+<style>
+  body { margin:0; font-family:"Segoe UI", -apple-system, Roboto, Arial, sans-serif; color:#161616; background:#fff; }
+  .site-header { background:#243a5e; color:#fff; padding:14px 24px; font-size:15px; }
+  .site-header a { color:#fff; text-decoration:none; font-weight:600; }
+  .site-header span { opacity:.7; margin-left:10px; }
+  main { max-width:900px; margin:0 auto; padding:24px 20px 80px; }
+  h1 { font-size:32px; font-weight:600; margin:24px 0 12px; }
+  h2 { font-size:24px; font-weight:600; margin:40px 0 10px; border-bottom:1px solid #e1e1e1; padding-bottom:6px; }
+  h3 { font-size:18px; font-weight:600; margin:28px 0 8px; }
+  p, li { font-size:15px; line-height:1.65; }
+  a { color:#0f6cbd; }
+  code { background:#f3f2f1; padding:1px 5px; border-radius:3px; font-size:13.5px; font-family:Consolas, Monaco, monospace; }
+  img { max-width:100%; height:auto; border:1px solid #d1d1d1; border-radius:4px; margin:10px 0 18px; display:block; }
+  blockquote.callout { margin:14px 0; padding:10px 16px; background:#f3f8fc; border-left:4px solid #0f6cbd; border-radius:0 4px 4px 0; }
+  blockquote.callout p { margin:4px 0; }
+  table { border-collapse:collapse; width:100%; margin:14px 0 20px; font-size:14px; }
+  th { background:#f3f2f1; text-align:left; }
+  th, td { border:1px solid #d1d1d1; padding:8px 10px; vertical-align:top; }
+  ol > li, ul > li { margin-bottom:6px; }
+  .site-footer { border-top:1px solid #e1e1e1; margin-top:40px; padding-top:16px; font-size:12.5px; color:#666; }
+</style>
+</head>
+<body>
+<div class="site-header"><a href="./">fabric-labs</a><span>Microsoft Fabric hands-on labs</span></div>
+<main>
+<h1>Create and explore an ontology in Microsoft Fabric</h1>
+<p>In this lab, you'll build a complete Fabric IQ <strong>ontology (preview)</strong> for Lakeshore Retail, a fictional ice-cream retailer that keeps data on sales and freezer telemetry. Working directly from OneLake data, you'll set up a lakehouse and an eventhouse, build entity types (<em>Store</em>, <em>Products</em>, <em>SaleEvent</em>), enrich the ontology with a <em>Freezer</em> entity bound to both static and time series data, explore entity instances and relationship graphs, and finish by asking natural-language questions through a Fabric data agent — for example, <em>"What is the top product by revenue across all stores?"</em></p>
+<blockquote class="callout">
+<p><strong>Important</strong>: Ontology in Microsoft Fabric is currently in <a href="https://learn.microsoft.com/fabric/fundamentals/preview">preview</a>.</p>
+</blockquote>
+<p>This lab takes approximately <strong>60</strong> minutes to complete.</p>
+<blockquote class="callout">
+<p><strong>Note</strong>: You need access to a Fabric paid or trial capacity to complete this exercise. For information about the free Fabric trial, see <a href="https://aka.ms/fabrictrial">Fabric trial</a>. A Fabric administrator must also enable the following <a href="https://learn.microsoft.com/fabric/iq/ontology/overview-tenant-settings">tenant settings</a> in the admin portal: <strong>Enable Ontology item (preview)</strong>, <strong>Users can use Copilot and other features powered by Azure OpenAI</strong>, <strong>Data sent to Azure OpenAI can be processed outside your capacity's geographic region, compliance boundary, or national cloud instance</strong>, and <strong>Data sent to Azure OpenAI can be stored outside your capacity's geographic region, compliance boundary, or national cloud instance</strong> (the last three are required for the data agent in Part 4).</p>
+</blockquote>
+<p><img alt="Screenshot of enabling ontology in the admin portal" src="./Images/t0-prerequisite-ontology.png" /></p>
+<h2>Part 0: Set up the environment</h2>
+<h3>Create a workspace</h3>
+<ol>
+<li>Navigate to the <a href="https://app.fabric.microsoft.com/home?experience=fabric">Microsoft Fabric home page</a> at <code>https://app.fabric.microsoft.com/home?experience=fabric</code> in a browser, and sign in with your Fabric credentials.</li>
+<li>In the menu bar on the left, select <strong>Workspaces</strong>.</li>
+<li>Create a new workspace with a name of your choice, selecting a licensing mode that includes Fabric capacity (<em>Fabric</em>, <em>Fabric Trial</em>, or <em>Power BI Premium</em>).</li>
+<li>When your new workspace opens, it should be empty. Use this workspace for all items you create in this lab.</li>
+</ol>
+<h3>Download the sample data</h3>
+<p>Download the five sample CSV files. The data contains static entity details about the Lakeshore Retail scenario and streaming telemetry from its freezers:</p>
+<ul>
+<li><a href="https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/iq/ontology/DimStore.csv">DimStore.csv</a> - Retail store locations</li>
+<li><a href="https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/iq/ontology/DimProducts.csv">DimProducts.csv</a> - Ice-cream products</li>
+<li><a href="https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/iq/ontology/FactSales.csv">FactSales.csv</a> - Sales transactions</li>
+<li><a href="https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/iq/ontology/Freezer.csv">Freezer.csv</a> - Freezer equipment in each store</li>
+<li><a href="https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/iq/ontology/FreezerTelemetry.csv">FreezerTelemetry.csv</a> - Streaming freezer temperature and humidity readings</li>
+</ul>
+<blockquote class="callout">
+<p><strong>Tip</strong>: If a file opens in the browser instead of downloading, right-click the link and choose <strong>Save link as...</strong>. You can also browse the full sample folder at <a href="https://github.com/microsoft/fabric-samples/tree/main/docs-samples/iq/ontology">Ontology samples</a>.</p>
+</blockquote>
+<h3>Prepare the lakehouse</h3>
+<ol>
+<li>
+<p>In your Fabric workspace, use the <strong>+ New item</strong> button to create a new <strong>Lakehouse</strong> item called <code>OntologyDataLH</code>.</p>
+<p><img alt="Screenshot of creating a new lakehouse item" src="./Images/t0-lakehouse-new.png" /></p>
+</li>
+<li>
+<p>The new lakehouse opens when it's ready. From the lakehouse ribbon, select <strong>Get data</strong> &gt; <strong>Upload files</strong>.</p>
+<p><img alt="Screenshot of uploading files to the lakehouse" src="./Images/t0-lakehouse-upload.png" /></p>
+</li>
+<li>
+<p>Select four of the sample CSV files that you downloaded earlier to upload them to your lakehouse: <strong>DimProducts.csv</strong>, <strong>DimStore.csv</strong>, <strong>FactSales.csv</strong>, and <strong>Freezer.csv</strong>.</p>
+<blockquote class="callout">
+<p><strong>Note</strong>: Don't upload <em>FreezerTelemetry.csv</em> to the lakehouse. You upload this file to the eventhouse in a later step.</p>
+</blockquote>
+</li>
+<li>
+<p>Expand the <strong>Files</strong> folder in the Explorer to view your uploaded files. Next, load each file to a delta table: for each file, select <strong>...</strong> next to the file name, then <strong>Load to Tables</strong> &gt; <strong>New table</strong>. Continue through the table creation dialogue, keeping the default settings.</p>
+<p><img alt="Screenshot of the load to tables dialogue in lakehouse" src="./Images/t0-lakehouse-new-table.png" /></p>
+</li>
+<li>
+<p>The lakehouse looks like the following image when you're done. The default table names reflect the file names in all lowercase: <code>dimproducts</code>, <code>dimstore</code>, <code>factsales</code>, and <code>freezer</code>.</p>
+<p><img alt="Screenshot of the tables in the lakehouse" src="./Images/t0-lakehouse-tables.png" /></p>
+</li>
+</ol>
+<h3>Prepare the eventhouse</h3>
+<ol>
+<li>
+<p>In your Fabric workspace, use the <strong>+ New item</strong> button to create a new <strong>Eventhouse</strong> called <code>TelemetryDataEH</code>. A default KQL database is created with the same name.</p>
+</li>
+<li>
+<p>The eventhouse opens when it's ready. Open the KQL database by selecting its name in the explorer.</p>
+<p><img alt="Screenshot of the KQL database in the eventhouse" src="./Images/t0-eventhouse-database.png" /></p>
+</li>
+<li>
+<p>In the menu ribbon, select <strong>Get data</strong> &gt; <strong>Local file</strong>.</p>
+<p><img alt="Screenshot of the data source options for the database" src="./Images/t0-eventhouse-get-data.png" /></p>
+</li>
+<li>
+<p>Create a <strong>New table</strong> called <code>FreezerTelemetry</code> and browse for the <em>FreezerTelemetry.csv</em> file that you downloaded earlier. Continue through the table creation dialogue, keeping the default settings.</p>
+<p><img alt="Screenshot of uploading the csv file and creating the table" src="./Images/t0-eventhouse-get-data-2.png" /></p>
+</li>
+<li>
+<p>When you're done, the KQL database shows the <em>FreezerTelemetry</em> table with data.</p>
+<p><img alt="Screenshot of the table in the database" src="./Images/t0-eventhouse-table.png" /></p>
+</li>
+</ol>
+<h2>Part 1: Create the ontology</h2>
+<p>When your data is stored in OneLake, you can build an ontology directly from the OneLake data tables. The manual process involves creating an <strong>ontology item</strong>, creating <strong>entity types</strong>, creating <strong>data bindings</strong> for the entity types (including <strong>entity type keys</strong>), and creating <strong>relationship types</strong> between entity types.</p>
+<h3>Create the ontology (preview) item</h3>
+<ol>
+<li>
+<p>In your Fabric workspace, select <strong>+ New item</strong>. Search for and select the <strong>Ontology (preview)</strong> item.</p>
+<p><img alt="Screenshot of the ontology preview item" src="./Images/t1-new-ontology.png" /></p>
+</li>
+<li>
+<p>Enter <code>RetailSalesOntology</code> for the <strong>Name</strong> of your ontology and select <strong>Create</strong>.</p>
+<blockquote class="callout">
+<p><strong>Tip</strong>: Ontology names can include numbers, letters, and underscores. Don't use spaces or dashes.</p>
+</blockquote>
+</li>
+<li>
+<p>The ontology opens when it's ready.</p>
+<p><img alt="Screenshot of empty ontology" src="./Images/t1-ontology-blank.png" /></p>
+<blockquote class="callout">
+<p><strong>Note</strong>: If you see an error that Fabric is unable to create the ontology (preview) item, make sure that all the required tenant settings listed at the top of this lab are enabled.</p>
+</blockquote>
+</li>
+</ol>
+<h3>Add the Store entity type</h3>
+<p>Entity types represent types of objects in a business. You'll create three entity types: <em>Store</em>, <em>Products</em>, and <em>SaleEvent</em>. Follow the detailed steps for <em>Store</em> first.</p>
+<ol>
+<li>
+<p>From the top ribbon or the center of the configuration canvas, select <strong>Add entity type</strong>.</p>
+<p><img alt="Screenshot of adding entity type" src="./Images/t1-add-entity-type.png" /></p>
+</li>
+<li>
+<p>Enter <code>Store</code> for the name of your entity type and select <strong>Add Entity Type</strong>. The <em>Store</em> entity type is added to the configuration canvas.</p>
+<p><img alt="Screenshot of the new Store entity type" src="./Images/t1-store-entity-type.png" /></p>
+</li>
+</ol>
+<h3>Bind Store data</h3>
+<ol>
+<li>
+<p>On the configuration canvas, select <strong>...</strong> next to the entity name and select <strong>Bind data</strong>.</p>
+<p><img alt="Screenshot of selecting Bind data for Store" src="./Images/t1-store-bind-data-1.png" /></p>
+</li>
+<li>
+<p>Select <strong>Add data binding</strong> &gt; <strong>Lakehouse table</strong>.</p>
+<p><img alt="Screenshot of the data binding page and data source selection" src="./Images/t1-store-bind-data-2.png" /></p>
+</li>
+<li>
+<p>Choose your data source: select the <em>OntologyDataLH</em> lakehouse and select <strong>Next</strong>, then select the <em>dimstore</em> table and <strong>Select</strong>.</p>
+<p><img alt="Screenshot of the data source selection" src="./Images/t1-store-bind-data-3.png" /></p>
+</li>
+<li>
+<p>Fields from the source table populate the data binding configuration. Observe the sections of the configuration page:</p>
+<ul>
+<li><strong>Entity type key</strong>: Identifies the field (or fields) used to uniquely identify each record of ingested data.</li>
+<li><strong>Binding selection</strong>: Identifies the source table that holds the data for the binding.</li>
+<li><strong>Entity type key mapping</strong>: Identifies the column(s) in the source data table that map to the entity type key property.</li>
+<li><strong>Properties</strong>: Lists the columns from the source data that will be represented as properties on the <em>Store</em> entity type. Keep the default property names.</li>
+</ul>
+<p><img alt="Screenshot of the configuration" src="./Images/t1-store-bind-data-4.png" /></p>
+</li>
+<li>
+<p>Select <strong>Define entity type key</strong> at the top of the configuration. Select <strong>StoreId</strong> from the property list and select <strong>Save</strong>.</p>
+<p><img alt="Screenshot of selecting the entity type key" src="./Images/t1-store-bind-data-5-key.png" /></p>
+</li>
+<li>
+<p><strong>Save</strong> the data binding.</p>
+<p><img alt="Screenshot of saving the data binding" src="./Images/t1-store-bind-data-6.png" /></p>
+</li>
+<li>
+<p>Confirm that the entity type updated successfully, then select <strong>Cancel</strong> to close the configuration options.</p>
+<p><img alt="Screenshot of closing the data binding" src="./Images/t1-store-bind-data-7.png" /></p>
+</li>
+<li>
+<p>You see the <strong>Configure</strong> page of the entity type details, showing the entity's properties and data bindings.</p>
+<p><img alt="Screenshot of the data bindings in the Configure page" src="./Images/t1-store-bind-data-8.png" /></p>
+</li>
+</ol>
+<h3>Add the remaining entity types</h3>
+<p>Select <strong>Home</strong> to return to the configuration canvas where you can add new entity types.</p>
+<p><img alt="Screenshot of returning home to the configuration canvas" src="./Images/t1-home.png" /></p>
+<p>Follow the same steps that you used for the <em>Store</em> entity type to create these two additional entity types:</p>
+<table>
+<thead>
+<tr>
+<th>Entity type name</th>
+<th>Source table in <em>OntologyDataLH</em></th>
+<th>Entity type key</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Products</code></td>
+<td><em>dimproducts</em></td>
+<td><code>ProductId</code></td>
+<td>Use the plural name <em>Products</em> to avoid conflict with the GQL reserved word <code>PRODUCT</code>.</td>
+</tr>
+<tr>
+<td><code>SaleEvent</code></td>
+<td><em>factsales</em></td>
+<td><code>SaleId</code></td>
+<td>The default binding configuration loads a new <strong>Timeseries data</strong> section. Ignore this field and continue binding static data as usual.</td>
+</tr>
+</tbody>
+</table>
+<p>When you're done, you see these entity types listed in the <strong>Explorer</strong> in the configuration canvas.</p>
+<p><img alt="Screenshot of the scenario entity types" src="./Images/t1-all-entity-types.png" /></p>
+<h3>Create the "from" relationship (SaleEvent → Store)</h3>
+<p>Next, create relationship types between the entity types to represent contextual connections in your data.</p>
+<ol>
+<li>
+<p>Select the <strong>SaleEvent</strong> entity type from the <strong>Explorer</strong>.</p>
+</li>
+<li>
+<p>Select <strong>Add relationship</strong> from the menu ribbon, or <strong>...</strong> &gt; <strong>Add relationship type</strong> from the configuration canvas.</p>
+<p><img alt="Screenshot of adding a relationship type" src="./Images/t1-relationship-type-1.png" /></p>
+</li>
+<li>
+<p>Enter the following relationship type details and select <strong>Create</strong>: <strong>Relationship type name</strong>: <code>from</code>, <strong>Origin entity type</strong>: <em>SaleEvent</em>, <strong>Target entity type</strong>: <em>Store</em>.</p>
+<p><img alt="Screenshot of entering relationship type details" src="./Images/t1-relationship-type-2.png" /></p>
+</li>
+<li>
+<p>The relationship is added to the semantic canvas. Select it to open the relationship details configuration, which shows the <strong>Origin entity type</strong>, <strong>Relationship type</strong>, and <strong>Target entity type</strong> sections.</p>
+<p><img alt="Screenshot of the relationship type configuration" src="./Images/t1-relationship-type-3.png" /></p>
+</li>
+<li>
+<p>In the middle section, enter the following details:</p>
+<ul>
+<li><strong>Mapping table</strong>: <strong>Browse available sources</strong> and select the <em>factsales</em> table. This table can link <em>Store</em> and <em>SaleEvent</em> entities together, because it contains identifying information for both entity types.</li>
+<li><strong>Matched SaleEvent: SaleId</strong>: Select <code>SaleId</code> — the column whose values match the key property defined on the <em>SaleEvent</em> entity.</li>
+<li><strong>Matched Store: StoreId</strong>: Select <code>StoreId</code> — the column whose values match the key property defined on the <em>Store</em> entity.</li>
+</ul>
+<p><img alt="Screenshot of the completed relationship type configuration" src="./Images/t1-relationship-type-4.png" /></p>
+<blockquote class="callout">
+<p><strong>Important</strong>: Make sure to select the correct <strong>Matched</strong> columns that match the entity type key properties.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Save</strong> the relationship type. Confirm that it updated successfully, then select <strong>Cancel</strong> to close the configuration options.</p>
+</li>
+<li>
+<p>On the <strong>Configure</strong> page, the new relationship is visible next to the data bindings for the entity type.</p>
+<p><img alt="Screenshot of the relationship type in the Configure page" src="./Images/t1-relationship-type-5.png" /></p>
+</li>
+</ol>
+<h3>Create the "sold" relationship (SaleEvent → Products)</h3>
+<p>Select <strong>Home</strong> to return to the configuration canvas. Follow the same steps to create a second relationship from the <em>SaleEvent</em> entity type:</p>
+<table>
+<thead>
+<tr>
+<th>Relationship type name</th>
+<th>Origin entity type</th>
+<th>Target entity type</th>
+<th>Mapping table</th>
+<th>Matched SaleEvent: SaleId</th>
+<th>Matched Products: ProductId</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sold</code></td>
+<td><em>SaleEvent</em></td>
+<td><em>Products</em></td>
+<td><em>factsales</em></td>
+<td><code>SaleId</code></td>
+<td><code>ProductId</code></td>
+</tr>
+</tbody>
+</table>
+<p>When you're done, you have two relationships from the <em>SaleEvent</em> entity type visible on the configuration canvas.</p>
+<p><img alt="Screenshot of the scenario relationship types" src="./Images/t1-all-relationship-types.png" /></p>
+<h2>Part 2: Enrich the ontology with the Freezer entity</h2>
+<p>Now you'll enrich your ontology by adding a new <em>Freezer</em> entity type, which introduces properties for time series data reflecting live operational information. First you create the entity type and define properties without binding them, then bind static data, then add time series data.</p>
+<h3>Create the Freezer entity type and add properties</h3>
+<ol>
+<li>
+<p>Start in the Home configuration canvas of the ontology. Select <strong>Add entity type</strong> from the top ribbon. Enter <code>Freezer</code> for the name and select <strong>Add Entity Type</strong>.</p>
+<p><img alt="Screenshot of adding the new Freezer entity type" src="./Images/t2-add-freezer.png" /></p>
+</li>
+<li>
+<p>With the Freezer entity type selected in the <strong>Explorer</strong>, select <strong>View entity type details</strong> from the top ribbon.</p>
+<p><img alt="Screenshot of the button to view Freezer entity type details" src="./Images/t2-view-entity-type-details.png" /></p>
+</li>
+<li>
+<p>The <strong>Configure</strong> page of the entity type details opens. Expand <strong>Manage property bindings</strong> and select <strong>Add properties</strong>.</p>
+<p><img alt="Screenshot of adding properties to the Freezer entity type" src="./Images/t2-freezer-properties-1.png" /></p>
+</li>
+<li>
+<p>Add the following properties and select <strong>Save</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Property type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FreezerId</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>minSafeTempC</code></td>
+<td>Double</td>
+</tr>
+<tr>
+<td><code>StoreId</code></td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Screenshot of the properties for the Freezer entity type" src="./Images/t2-freezer-properties-2.png" /></p>
+</li>
+<li>
+<p>The properties are added to the <strong>Configure</strong> page, unbound to any data source.</p>
+<p><img alt="Screenshot of the new unbound properties on the Freezer entity type" src="./Images/t2-freezer-properties-3.png" /></p>
+</li>
+</ol>
+<h3>Bind static data to the properties</h3>
+<ol>
+<li>
+<p>Expand <strong>Manage property bindings</strong> and select <strong>Add binding and properties</strong>.</p>
+<p><img alt="Screenshot of adding data bindings to Freezer" src="./Images/t2-freezer-binding-1.png" /></p>
+</li>
+<li>
+<p>Select <strong>Add data binding</strong> &gt; <strong>Lakehouse table</strong>.</p>
+<p><img alt="Screenshot of the data binding page and data source selection" src="./Images/t2-freezer-binding-2.png" /></p>
+</li>
+<li>
+<p>Choose your data source: select the <em>OntologyDataLH</em> lakehouse and select <strong>Next</strong>, then select the <em>freezer</em> table and <strong>Select</strong>.</p>
+<p><img alt="Screenshot of the data source selection" src="./Images/t2-freezer-binding-3.png" /></p>
+</li>
+<li>
+<p>Fields from the source table populate the data binding configuration. Keep the default property names.</p>
+<p><img alt="Screenshot of the configuration" src="./Images/t2-freezer-binding-4.png" /></p>
+</li>
+<li>
+<p>Select <strong>Define entity type key</strong> at the top of the configuration. Select <code>FreezerId</code> from the property list and select <strong>Save</strong>.</p>
+<p><img alt="Screenshot of adding an entity type key" src="./Images/t2-freezer-binding-5-key.png" /></p>
+</li>
+<li>
+<p><strong>Save</strong> the data binding. Confirm that the entity type updated successfully, then select <strong>Cancel</strong> to close the configuration options.</p>
+</li>
+<li>
+<p>Back on the <strong>Configure</strong> page for <em>Freezer</em>, the properties are now bound to a data source.</p>
+<p><img alt="Screenshot of the data bindings in the Configure page" src="./Images/t2-freezer-binding-6.png" /></p>
+</li>
+</ol>
+<h3>Bind time series data</h3>
+<p>Next, add time series data to the <em>Freezer</em> entity by creating new properties and binding time series data to them in a single operation.</p>
+<ol>
+<li>
+<p>On the <strong>Configure</strong> page, expand <strong>Manage property bindings</strong> and select <strong>Add binding and properties</strong> again to reopen the binding configuration.</p>
+<blockquote class="callout">
+<p><strong>Tip</strong>: You could also bind all the data in one visit to this configuration page, as long as you complete the static binding before the time series one.</p>
+</blockquote>
+</li>
+<li>
+<p>Under <strong>Binding selection</strong>, expand <strong>Add data binding</strong> and select <strong>Eventhouse table or materialized view</strong>.</p>
+<p><img alt="Screenshot of adding a second data binding to the configuration" src="./Images/t2-freezer-binding-time-series-1.png" /></p>
+</li>
+<li>
+<p>Choose your data source: select the <em>TelemetryDataEH</em> eventhouse and select <strong>Add</strong>, then select the <em>FreezerTelemetry</em> table and <strong>Add</strong>.</p>
+</li>
+<li>
+<p>A <strong>Timeseries data</strong> section appears in the configuration. For <strong>Timestamp column</strong>, select <code>timestamp</code>.</p>
+<p><img alt="Screenshot of selecting the timestamp column" src="./Images/t2-freezer-binding-time-series-2.png" /></p>
+</li>
+<li>
+<p>Scroll down to the <strong>Properties</strong> section, where <code>StoreId</code> shows an error because it's already bound in the static data binding. Use the trash icon to delete the duplicated property.</p>
+<p><img alt="Screenshot of deleting the StoreId property" src="./Images/t2-freezer-binding-time-series-3.png" /></p>
+</li>
+<li>
+<p><strong>Save</strong> the data binding. Confirm that the entity type updated successfully, then select <strong>Cancel</strong> to close the configuration options.</p>
+</li>
+<li>
+<p>Back on the <strong>Configure</strong> page for <em>Freezer</em>, notice the new properties bound to the <em>FreezerTelemetry</em> data source. The <em>Freezer</em> entity now has two data bindings: static data from the <em>freezer</em> lakehouse table and streaming data from the <em>FreezerTelemetry</em> eventhouse table.</p>
+<p><img alt="Screenshot of all the data bindings in the Configure page" src="./Images/t2-freezer-binding-time-series-4.png" /></p>
+</li>
+</ol>
+<h3>Create the "operates" relationship (Store → Freezer)</h3>
+<ol>
+<li>
+<p>On the <strong>Configure</strong> page, expand <strong>Manage relationships</strong> and select <strong>Add new relationship</strong>.</p>
+<p><img alt="Screenshot of adding a new relationship" src="./Images/t2-relationship-type-1.png" /></p>
+</li>
+<li>
+<p>Enter the following relationship type details and select <strong>Create</strong>: <strong>Relationship type name</strong>: <code>operates</code>, <strong>Origin entity type</strong>: <em>Store</em>, <strong>Target entity type</strong>: <em>Freezer</em>.</p>
+<p><img alt="Screenshot of entering relationship type details" src="./Images/t2-relationship-type-2.png" /></p>
+</li>
+<li>
+<p>The relationship is added to the <strong>Relationships</strong> section. Select the <em>operates</em> relationship to open the relationship details configuration.</p>
+<p><img alt="Screenshot of the relationship type configuration" src="./Images/t2-relationship-type-3.png" /></p>
+</li>
+<li>
+<p>In the middle section, enter the following details:</p>
+<ul>
+<li><strong>Mapping table</strong>: Select the <em>freezer</em> table — it contains identifying information for both entity types.</li>
+<li><strong>Matched Store: StoreId</strong>: Select <code>StoreId</code>.</li>
+<li><strong>Matched Freezer: FreezerId</strong>: Select <code>FreezerId</code>.</li>
+</ul>
+<p><img alt="Screenshot of the completed relationship type configuration" src="./Images/t2-relationship-type-4.png" /></p>
+<blockquote class="callout">
+<p><strong>Important</strong>: Make sure to select the correct source columns that match the entity type key properties.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Save</strong> the relationship type. Confirm that it updated successfully, then select <strong>Cancel</strong> to close the configuration options. The updated relationship remains visible in the <strong>Relationships</strong> section.</p>
+<p><img alt="Screenshot of the relationship type on the configuration page" src="./Images/t2-relationship-type-5.png" /></p>
+</li>
+</ol>
+<h2>Part 3: Explore the ontology</h2>
+<p>When you bound data to your entity types, the ontology automatically created instances of those entities tied to the source data rows. Now you'll explore instances, time series data, and relationship graphs.</p>
+<h3>View entity instances</h3>
+<ol>
+<li>
+<p>Start in the Home configuration canvas. Select the <em>SaleEvent</em> entity type, and <strong>View Entity Type details</strong> from the top ribbon.</p>
+<p><img alt="Screenshot of opening the entity type details for SaleEvent" src="./Images/t3-view-entity-type-details.png" /></p>
+</li>
+<li>
+<p>Open the <strong>Instances</strong> tab. Verify that it shows six entity instances with data populated from the <em>factsales</em> lakehouse table, like revenue and unit counts.</p>
+<p><img alt="Screenshot of the SaleEvent instances" src="./Images/t3-instances.png" /></p>
+<blockquote class="callout">
+<p><strong>Tip</strong>: If data bindings don't load, confirm that the source data tables exist with matching column names, and that your Fabric identity has data access.</p>
+</blockquote>
+</li>
+</ol>
+<h3>View time series data</h3>
+<ol>
+<li>
+<p>In the top left corner of the page, use the selector next to the entity type name to switch to the <em>Freezer</em> entity type.</p>
+<p><img alt="Screenshot of switching to a different entity type" src="./Images/t3-switch-freezer.png" /></p>
+</li>
+<li>
+<p>Open the <strong>Overview</strong> tab. The tab loads with empty charts, because the default time range of <em>Last 30 days</em> doesn't include any data.</p>
+<p><img alt="Screenshot of the Overview tab" src="./Images/t3-overview.png" /></p>
+</li>
+<li>
+<p>Update the time range to a custom date range that begins on <em>Fri Aug 01 2025 at 12:00 AM</em>, ends on <em>Mon Aug 04 2025 at 12:00 AM</em>, with a <strong>Time granularity</strong> of <em>5 minutes</em>.</p>
+<p><img alt="Screenshot of the time selector" src="./Images/t3-freezer-telemetry-edit-time.png" /></p>
+</li>
+<li>
+<p>Observe the time series data now visible from several <em>Freezer</em> entity instances in the selected time window.</p>
+<p><img alt="Screenshot of the time series tiles" src="./Images/t3-freezer-telemetry.png" /></p>
+</li>
+</ol>
+<h3>View the ontology graph</h3>
+<ol>
+<li>
+<p>Use the entity type selector to switch to the <em>SaleEvent</em> entity type. In the <strong>Relationship graph</strong> tile, select <strong>Expand</strong>.</p>
+<p><img alt="Screenshot of expanding the SaleEvent relationship graph" src="./Images/t3-relationship-graph-sale.png" /></p>
+</li>
+<li>
+<p>The expanded graph view opens. Observe the relationships from <em>SaleEvent</em> to <em>Products</em> and <em>Store</em>.</p>
+<p><img alt="Screenshot of data in the expanded relationship graph" src="./Images/t3-relationship-graph-expanded.png" /></p>
+</li>
+<li>
+<p>Use the entity type selector to switch to the <em>Store</em> entity type. Expand its relationship graph.</p>
+<p><img alt="Screenshot of expanding the Store relationship graph" src="./Images/t3-relationship-graph-store.png" /></p>
+</li>
+<li>
+<p>In the graph, observe the relationships that <em>Store</em> has with <em>Freezer</em> and <em>SaleEvent</em>. Then select <strong>Run query</strong> in the query builder ribbon to see a graph of entity instances alongside their connections.</p>
+<p><img alt="Screenshot of the Store relationship graph and instances" src="./Images/t3-relationship-default-query.png" /></p>
+<blockquote class="callout">
+<p><strong>Tip</strong>: If the graph result looks sparse, check the entity type keys in the data bindings and verify that they match the keys you defined in Part 1. For example, the key for the <em>SaleEvent</em> entity type is <code>SaleId</code>.</p>
+</blockquote>
+</li>
+</ol>
+<h3>Query graph instances</h3>
+<p>Use the <strong>Query builder</strong> filters in the top ribbon to craft queries against your ontology.</p>
+<p><img alt="Screenshot of selecting the query builder" src="./Images/t3-query-builder.png" /></p>
+<p>First, craft this query: <em>Show all freezers that are operated in the Paris store.</em></p>
+<ol>
+<li>
+<p>In the <em>Store</em> entity's relationship graph, select <strong>Add filter</strong> &gt; <strong>Store</strong> &gt; <strong>StoreId</strong> from the query builder ribbon. Set the filter for <code>StoreId = S-PAR-01</code> (the store ID for the Paris store).</p>
+<p><img alt="Screenshot of filtering by Store ID" src="./Images/t3-add-filter-store.png" /></p>
+</li>
+<li>
+<p>In the <strong>Components</strong> section, uncheck <em>SaleEvent</em> so that the only checked fields are <strong>Nodes &gt; Store</strong>, <strong>Nodes &gt; Freezer</strong>, and <strong>Edges &gt; operates</strong>.</p>
+<p><img alt="Screenshot of filtering the components" src="./Images/t3-components.png" /></p>
+</li>
+<li>
+<p>Select <strong>Run query</strong> and verify that the instance graph shows two freezers connected to the <em>Paris</em> store.</p>
+<p><img alt="Screenshot of the freezers connected to the filtered store" src="./Images/t3-store-freezers.png" /></p>
+</li>
+<li>
+<p>Select <strong>Clear query</strong> to clear the query results.</p>
+</li>
+</ol>
+<p>Next, craft this query: <em>Show all stores that have made a sale with a revenue greater than 150.</em></p>
+<ol>
+<li>
+<p>Select <strong>Add a node</strong> and add a node for <em>SaleEvent</em>.</p>
+<p><img alt="Screenshot of adding nodes to a new query" src="./Images/t3-add-node.png" /></p>
+</li>
+<li>
+<p>In the <strong>Components</strong> section, check the boxes next to <strong>Nodes &gt; Store</strong> and <strong>Edges &gt; from</strong> to add them to the graph.</p>
+</li>
+<li>
+<p>From the query builder ribbon, select <strong>Add filter</strong> &gt; <strong>SaleEvent</strong> &gt; <strong>RevenueUSD</strong>. Set the filter for <code>RevenueUSD &gt; 150</code>.</p>
+<p><img alt="Screenshot of filtering by sale revenue" src="./Images/t3-add-filter-sale.png" /></p>
+</li>
+<li>
+<p>Select <strong>Run query</strong> and verify that the instance graph shows two stores that meet the filter for their connected sale events. Select the nodes in the graph to get details of the specific sale events.</p>
+<p><img alt="Screenshot of the stores that meet the filter" src="./Images/t3-sale-event-stores.png" /></p>
+</li>
+</ol>
+<p>This process lets you inspect the paths that connect operational issues (like rising freezer temperature at certain stores) to business outcomes (sales).</p>
+<h2>Part 4: Ask questions with a data agent</h2>
+<p>When agents use an ontology as context, they gain a governed understanding of the business: key entities, relationships, definitions, and source mappings. This helps agents produce responses that are grounded, explainable, and consistent. In this part, you create a Fabric data agent connected to your ontology.</p>
+<h3>Create the data agent</h3>
+<ol>
+<li>
+<p>Go to your Fabric workspace. Use the <strong>+ New item</strong> button to create a new <strong>Data agent</strong> item named <code>RetailOntologyAgent</code>.</p>
+<p><img alt="Screenshot of creating a new data agent item" src="./Images/t4-data-agent-new.png" /></p>
+<blockquote class="callout">
+<p><strong>Tip</strong>: If you don't see the data agent item type, make sure it's enabled in your tenant as described in the prerequisites at the top of this lab.</p>
+</blockquote>
+</li>
+<li>
+<p>The agent opens when it's ready. Select <strong>Add a data source</strong>. Search for the <em>RetailSalesOntology</em> item and select <strong>Add</strong>.</p>
+<p><img alt="Screenshot of adding a source to the data agent" src="./Images/t4-add-source.png" /></p>
+</li>
+<li>
+<p>When the agent is ready, the ontology and its entity types are visible in the Explorer.</p>
+<p><img alt="Screenshot of the Retail Ontology Agent" src="./Images/t4-data-agent.png" /></p>
+</li>
+</ol>
+<h3>Provide agent instructions</h3>
+<blockquote class="callout">
+<p><strong>Note</strong>: This step addresses a known issue affecting aggregation in queries.</p>
+</blockquote>
+<ol>
+<li>
+<p>Select <strong>Agent instructions</strong> from the menu ribbon.</p>
+</li>
+<li>
+<p>At the bottom of the input box, add <code>Support group by in GQL</code>. This instruction enables better aggregation across ontology data. The instruction is applied automatically.</p>
+<p><img alt="Screenshot of the agent instructions" src="./Images/t4-agent-instructions.png" /></p>
+</li>
+</ol>
+<h3>Query the agent with natural language</h3>
+<p>Explore your ontology with natural language questions. Start by entering these example prompts:</p>
+<ul>
+<li><em>For each store, show any freezers operated by that store that ever had a humidity lower than 46 percent.</em></li>
+<li><em>What is the top product by revenue across all stores?</em></li>
+</ul>
+<p>Notice that the responses reference entity types (<em>Store</em>, <em>Products</em>, <em>Freezer</em>) and their relationships, not just raw tables.</p>
+<p><img alt="Screenshot of the result of a query" src="./Images/t4-query-result.png" /></p>
+<blockquote class="callout">
+<p><strong>Tip</strong>: If you see errors that say there's no data while running the example queries, wait a few minutes to give the agent more time to initialize. Then run the queries again.</p>
+</blockquote>
+<p>Continue exploring the data agent by trying out some prompts of your own.</p>
+<p>You've built a complete ontology from OneLake data — entity types, keys, static and time series bindings, and relationships — explored it through instances and graph queries, and consumed it with an AI agent in natural language. Your ontology now gives Lakeshore Retail a shared business vocabulary that connects sales data with live freezer telemetry.</p>
+<h2>Clean up resources (optional)</h2>
+<p>You can keep this workspace and ontology to continue exploring Fabric IQ capabilities. If you want to remove the resources you created in this exercise:</p>
+<ol>
+<li>In the bar on the left, select the icon for your workspace to view all of the items it contains.</li>
+<li>Select <strong>Workspace settings</strong>.</li>
+<li>In the <strong>General</strong> section, select <strong>Remove this workspace</strong>.</li>
+</ol>
+<div class="site-footer">
+<p>Based on the Microsoft Learn <a href="https://learn.microsoft.com/fabric/iq/ontology/tutorial-0-introduction?pivots=onelake">Ontology (preview) tutorial</a> (parts 0-4) and the
+<a href="https://github.com/MicrosoftLearning/mslearn-fabric">mslearn-fabric</a> lab format. Screenshots © Microsoft, from Microsoft Learn documentation.
+Ontology in Microsoft Fabric is a preview feature; the product UI may change.</p>
+</div>
+</main>
+</body>
+</html>
