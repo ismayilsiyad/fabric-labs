@@ -1,41 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Create and explore an ontology in Microsoft Fabric | fabric-labs</title>
-<style>
-  body { margin:0; font-family:"Segoe UI", -apple-system, Roboto, Arial, sans-serif; color:#161616; background:#fff; }
-  .site-header { background:#243a5e; color:#fff; padding:14px 24px; font-size:15px; }
-  .site-header a { color:#fff; text-decoration:none; font-weight:600; }
-  .site-header span { opacity:.7; margin-left:10px; }
-  main { max-width:900px; margin:0 auto; padding:24px 20px 80px; }
-  h1 { font-size:32px; font-weight:600; margin:24px 0 12px; }
-  h2 { font-size:24px; font-weight:600; margin:40px 0 10px; border-bottom:1px solid #e1e1e1; padding-bottom:6px; }
-  h3 { font-size:18px; font-weight:600; margin:28px 0 8px; }
-  p, li { font-size:15px; line-height:1.65; }
-  a { color:#0f6cbd; }
-  code { background:#f3f2f1; padding:1px 5px; border-radius:3px; font-size:13.5px; font-family:Consolas, Monaco, monospace; }
-  img { max-width:100%; height:auto; border:1px solid #d1d1d1; border-radius:4px; margin:10px 0 18px; display:block; }
-  blockquote.callout { margin:14px 0; padding:10px 16px; background:#f3f8fc; border-left:4px solid #0f6cbd; border-radius:0 4px 4px 0; }
-  blockquote.callout p { margin:4px 0; }
-  table { border-collapse:collapse; width:100%; margin:14px 0 20px; font-size:14px; }
-  th { background:#f3f2f1; text-align:left; }
-  th, td { border:1px solid #d1d1d1; padding:8px 10px; vertical-align:top; }
-  ol > li, ul > li { margin-bottom:6px; }
-  .site-footer { border-top:1px solid #e1e1e1; margin-top:40px; padding-top:16px; font-size:12.5px; color:#666; }
-</style>
-</head>
-<body>
-<div class="site-header"><a href="./">fabric-labs</a><span>Microsoft Fabric hands-on labs</span></div>
-<main>
+    <head>
+        <title>
+            Create and explore an ontology in Microsoft Fabric | fabric-labs
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <link rel="stylesheet" href="assets/css/style.css">
+    </head>
+<body data-spy="scroll" data-target="#linksMenu">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+        <div class="container d-flex justify-content-between">
+            <span class="my-1 title text-black">fabric-labs</span>
+            <span class="ml-2">
+                <a href="https://ismayilsiyad.github.io/fabric-labs/" class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    &nbsp;Home
+                </a>
+            </span>
+        </div>
+    </nav>
+    <hr color-"gray"/>
+    <div class="container">
+        <main class="row extra-padding">
+            <aside class="col-sm-2">       
+                <nav id="linksMenu" class="toc sticky-top">
+                    <ul class="nav navbar-nav flex-column">
+                    </ul>
+                </nav>         
+            </aside>
+            <hr class="" />
+            <article class="col-sm-10 mb-5">
 <h1>Create and explore an ontology in Microsoft Fabric</h1>
 <p>In this lab, you'll build a complete Fabric IQ <strong>ontology (preview)</strong> for Lakeshore Retail, a fictional ice-cream retailer that keeps data on sales and freezer telemetry. Working directly from OneLake data, you'll set up a lakehouse and an eventhouse, build entity types (<em>Store</em>, <em>Products</em>, <em>SaleEvent</em>), enrich the ontology with a <em>Freezer</em> entity bound to both static and time series data, explore entity instances and relationship graphs, and finish by asking natural-language questions through a Fabric data agent — for example, <em>"What is the top product by revenue across all stores?"</em></p>
-<blockquote class="callout">
-<p><strong>Important</strong>: Ontology in Microsoft Fabric is currently in <a href="https://learn.microsoft.com/fabric/fundamentals/preview">preview</a>.</p>
+<blockquote>
+<p>[!IMPORTANT]
+Ontology in Microsoft Fabric is currently in <a href="https://learn.microsoft.com/fabric/fundamentals/preview">preview</a>.</p>
 </blockquote>
 <p>This lab takes approximately <strong>60</strong> minutes to complete.</p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Note</strong>: You need access to a Fabric paid or trial capacity to complete this exercise. For information about the free Fabric trial, see <a href="https://aka.ms/fabrictrial">Fabric trial</a>. A Fabric administrator must also enable the following <a href="https://learn.microsoft.com/fabric/iq/ontology/overview-tenant-settings">tenant settings</a> in the admin portal: <strong>Enable Ontology item (preview)</strong>, <strong>Users can use Copilot and other features powered by Azure OpenAI</strong>, <strong>Data sent to Azure OpenAI can be processed outside your capacity's geographic region, compliance boundary, or national cloud instance</strong>, and <strong>Data sent to Azure OpenAI can be stored outside your capacity's geographic region, compliance boundary, or national cloud instance</strong> (the last three are required for the data agent in Part 4).</p>
 </blockquote>
 <p><img alt="Screenshot of enabling ontology in the admin portal" src="./Images/t0-prerequisite-ontology.png" /></p>
@@ -56,7 +68,7 @@
 <li><a href="https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/iq/ontology/Freezer.csv">Freezer.csv</a> - Freezer equipment in each store</li>
 <li><a href="https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/iq/ontology/FreezerTelemetry.csv">FreezerTelemetry.csv</a> - Streaming freezer temperature and humidity readings</li>
 </ul>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Tip</strong>: If a file opens in the browser instead of downloading, right-click the link and choose <strong>Save link as...</strong>. You can also browse the full sample folder at <a href="https://github.com/microsoft/fabric-samples/tree/main/docs-samples/iq/ontology">Ontology samples</a>.</p>
 </blockquote>
 <h3>Prepare the lakehouse</h3>
@@ -71,7 +83,7 @@
 </li>
 <li>
 <p>Select four of the sample CSV files that you downloaded earlier to upload them to your lakehouse: <strong>DimProducts.csv</strong>, <strong>DimStore.csv</strong>, <strong>FactSales.csv</strong>, and <strong>Freezer.csv</strong>.</p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Note</strong>: Don't upload <em>FreezerTelemetry.csv</em> to the lakehouse. You upload this file to the eventhouse in a later step.</p>
 </blockquote>
 </li>
@@ -116,14 +128,14 @@
 </li>
 <li>
 <p>Enter <code>RetailSalesOntology</code> for the <strong>Name</strong> of your ontology and select <strong>Create</strong>.</p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Tip</strong>: Ontology names can include numbers, letters, and underscores. Don't use spaces or dashes.</p>
 </blockquote>
 </li>
 <li>
 <p>The ontology opens when it's ready.</p>
 <p><img alt="Screenshot of empty ontology" src="./Images/t1-ontology-blank.png" /></p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Note</strong>: If you see an error that Fabric is unable to create the ontology (preview) item, make sure that all the required tenant settings listed at the top of this lab are enabled.</p>
 </blockquote>
 </li>
@@ -237,7 +249,7 @@
 <li><strong>Matched Store: StoreId</strong>: Select <code>StoreId</code> — the column whose values match the key property defined on the <em>Store</em> entity.</li>
 </ul>
 <p><img alt="Screenshot of the completed relationship type configuration" src="./Images/t1-relationship-type-4.png" /></p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Important</strong>: Make sure to select the correct <strong>Matched</strong> columns that match the entity type key properties.</p>
 </blockquote>
 </li>
@@ -361,7 +373,7 @@
 <ol>
 <li>
 <p>On the <strong>Configure</strong> page, expand <strong>Manage property bindings</strong> and select <strong>Add binding and properties</strong> again to reopen the binding configuration.</p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Tip</strong>: You could also bind all the data in one visit to this configuration page, as long as you complete the static binding before the time series one.</p>
 </blockquote>
 </li>
@@ -410,7 +422,7 @@
 <li><strong>Matched Freezer: FreezerId</strong>: Select <code>FreezerId</code>.</li>
 </ul>
 <p><img alt="Screenshot of the completed relationship type configuration" src="./Images/t2-relationship-type-4.png" /></p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Important</strong>: Make sure to select the correct source columns that match the entity type key properties.</p>
 </blockquote>
 </li>
@@ -430,7 +442,7 @@
 <li>
 <p>Open the <strong>Instances</strong> tab. Verify that it shows six entity instances with data populated from the <em>factsales</em> lakehouse table, like revenue and unit counts.</p>
 <p><img alt="Screenshot of the SaleEvent instances" src="./Images/t3-instances.png" /></p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Tip</strong>: If data bindings don't load, confirm that the source data tables exist with matching column names, and that your Fabric identity has data access.</p>
 </blockquote>
 </li>
@@ -471,51 +483,11 @@
 <li>
 <p>In the graph, observe the relationships that <em>Store</em> has with <em>Freezer</em> and <em>SaleEvent</em>. Then select <strong>Run query</strong> in the query builder ribbon to see a graph of entity instances alongside their connections.</p>
 <p><img alt="Screenshot of the Store relationship graph and instances" src="./Images/t3-relationship-default-query.png" /></p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Tip</strong>: If the graph result looks sparse, check the entity type keys in the data bindings and verify that they match the keys you defined in Part 1. For example, the key for the <em>SaleEvent</em> entity type is <code>SaleId</code>.</p>
 </blockquote>
 </li>
 </ol>
-<h3>Query graph instances</h3>
-<p>Use the <strong>Query builder</strong> filters in the top ribbon to craft queries against your ontology.</p>
-<p><img alt="Screenshot of selecting the query builder" src="./Images/t3-query-builder.png" /></p>
-<p>First, craft this query: <em>Show all freezers that are operated in the Paris store.</em></p>
-<ol>
-<li>
-<p>In the <em>Store</em> entity's relationship graph, select <strong>Add filter</strong> &gt; <strong>Store</strong> &gt; <strong>StoreId</strong> from the query builder ribbon. Set the filter for <code>StoreId = S-PAR-01</code> (the store ID for the Paris store).</p>
-<p><img alt="Screenshot of filtering by Store ID" src="./Images/t3-add-filter-store.png" /></p>
-</li>
-<li>
-<p>In the <strong>Components</strong> section, uncheck <em>SaleEvent</em> so that the only checked fields are <strong>Nodes &gt; Store</strong>, <strong>Nodes &gt; Freezer</strong>, and <strong>Edges &gt; operates</strong>.</p>
-<p><img alt="Screenshot of filtering the components" src="./Images/t3-components.png" /></p>
-</li>
-<li>
-<p>Select <strong>Run query</strong> and verify that the instance graph shows two freezers connected to the <em>Paris</em> store.</p>
-<p><img alt="Screenshot of the freezers connected to the filtered store" src="./Images/t3-store-freezers.png" /></p>
-</li>
-<li>
-<p>Select <strong>Clear query</strong> to clear the query results.</p>
-</li>
-</ol>
-<p>Next, craft this query: <em>Show all stores that have made a sale with a revenue greater than 150.</em></p>
-<ol>
-<li>
-<p>Select <strong>Add a node</strong> and add a node for <em>SaleEvent</em>.</p>
-<p><img alt="Screenshot of adding nodes to a new query" src="./Images/t3-add-node.png" /></p>
-</li>
-<li>
-<p>In the <strong>Components</strong> section, check the boxes next to <strong>Nodes &gt; Store</strong> and <strong>Edges &gt; from</strong> to add them to the graph.</p>
-</li>
-<li>
-<p>From the query builder ribbon, select <strong>Add filter</strong> &gt; <strong>SaleEvent</strong> &gt; <strong>RevenueUSD</strong>. Set the filter for <code>RevenueUSD &gt; 150</code>.</p>
-<p><img alt="Screenshot of filtering by sale revenue" src="./Images/t3-add-filter-sale.png" /></p>
-</li>
-<li>
-<p>Select <strong>Run query</strong> and verify that the instance graph shows two stores that meet the filter for their connected sale events. Select the nodes in the graph to get details of the specific sale events.</p>
-<p><img alt="Screenshot of the stores that meet the filter" src="./Images/t3-sale-event-stores.png" /></p>
-</li>
-</ol>
-<p>This process lets you inspect the paths that connect operational issues (like rising freezer temperature at certain stores) to business outcomes (sales).</p>
 <h2>Part 4: Ask questions with a data agent</h2>
 <p>When agents use an ontology as context, they gain a governed understanding of the business: key entities, relationships, definitions, and source mappings. This helps agents produce responses that are grounded, explainable, and consistent. In this part, you create a Fabric data agent connected to your ontology.</p>
 <h3>Create the data agent</h3>
@@ -523,7 +495,7 @@
 <li>
 <p>Go to your Fabric workspace. Use the <strong>+ New item</strong> button to create a new <strong>Data agent</strong> item named <code>RetailOntologyAgent</code>.</p>
 <p><img alt="Screenshot of creating a new data agent item" src="./Images/t4-data-agent-new.png" /></p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Tip</strong>: If you don't see the data agent item type, make sure it's enabled in your tenant as described in the prerequisites at the top of this lab.</p>
 </blockquote>
 </li>
@@ -537,7 +509,7 @@
 </li>
 </ol>
 <h3>Provide agent instructions</h3>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Note</strong>: This step addresses a known issue affecting aggregation in queries.</p>
 </blockquote>
 <ol>
@@ -557,7 +529,7 @@
 </ul>
 <p>Notice that the responses reference entity types (<em>Store</em>, <em>Products</em>, <em>Freezer</em>) and their relationships, not just raw tables.</p>
 <p><img alt="Screenshot of the result of a query" src="./Images/t4-query-result.png" /></p>
-<blockquote class="callout">
+<blockquote>
 <p><strong>Tip</strong>: If you see errors that say there's no data while running the example queries, wait a few minutes to give the agent more time to initialize. Then run the queries again.</p>
 </blockquote>
 <p>Continue exploring the data agent by trying out some prompts of your own.</p>
@@ -569,11 +541,30 @@
 <li>Select <strong>Workspace settings</strong>.</li>
 <li>In the <strong>General</strong> section, select <strong>Remove this workspace</strong>.</li>
 </ol>
-<div class="site-footer">
-<p>Based on the Microsoft Learn <a href="https://learn.microsoft.com/fabric/iq/ontology/tutorial-0-introduction?pivots=onelake">Ontology (preview) tutorial</a> (parts 0-4) and the
-<a href="https://github.com/MicrosoftLearning/mslearn-fabric">mslearn-fabric</a> lab format. Screenshots © Microsoft, from Microsoft Learn documentation.
-Ontology in Microsoft Fabric is a preview feature; the product UI may change.</p>
-</div>
-</main>
+            </article>
+        </main>
+    </div>
+    <footer class="fixed-bottom d-print-none">
+        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
+            <span class="navbar-text">
+                &copy; 2026 Microsoft &nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/ismayilsiyad/fabric-labs" target="_blank" class="ml-2">
+                    Source
+                </a>
+            </span>
+        </nav>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="assets/js/script.js"></script>
 </body>
+
 </html>
