@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            Discover and connect to data in OneLake | fabric-labs
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <link rel="stylesheet" href="assets/css/style.css">
+    </head>
+<body data-spy="scroll" data-target="#linksMenu">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+        <div class="container d-flex justify-content-between">
+            <span class="my-1 title text-black">fabric-labs</span>
+            <span class="ml-2">
+                <a href="https://ismayilsiyad.github.io/fabric-labs/" class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    &nbsp;Home
+                </a>
+            </span>
+        </div>
+    </nav>
+    <hr color-"gray"/>
+    <div class="container">
+        <main class="row extra-padding">
+            <aside class="col-sm-2">       
+                <nav id="linksMenu" class="toc sticky-top">
+                    <ul class="nav navbar-nav flex-column">
+                    </ul>
+                </nav>         
+            </aside>
+            <hr class="" />
+            <article class="col-sm-10 mb-5">
+<h1>Discover and connect to data in OneLake</h1>
+<p>In modern analytics organizations, data often exists across multiple workspaces and teams. Data engineers create lakehouses with raw and cleansed data, other teams build warehouses with business metrics, and analysts develop semantic models. As an analytics engineer, you need to find and connect to this data before you can transform it or build analytical solutions.</p>
+<p>Microsoft Fabric provides the OneLake catalog as a centralized discovery experience. The catalog helps you search for data assets, view their metadata, and understand what's available across your organization. Once you locate the data you need, you can connect to it using shortcuts, query it with SQL, or explore it through semantic models.</p>
+<p>In this exercise, you create a sample environment with a lakehouse containing sales data. You then practice discovering this data through the OneLake catalog, creating shortcuts for cross-workspace access, querying data via the SQL analytics endpoint, and exploring semantic models.</p>
+<p>This lab takes approximately <strong>30</strong> minutes to complete.</p>
+<blockquote>
+<p><strong>Tip:</strong> For related training content, see <a href="https://learn.microsoft.com/training/modules/discover-data-onelake/">Discover and connect to data in OneLake</a>.</p>
+<p><strong>Note</strong>: You need access to a Fabric paid or trial capacity to complete this exercise. For information about the free Fabric trial, see <a href="https://aka.ms/fabrictrial">Fabric trial</a>.</p>
+</blockquote>
+<h2>Create a workspace</h2>
+<ol>
+<li>
+<p>Navigate to the <a href="https://app.fabric.microsoft.com/home?experience=fabric">Microsoft Fabric home page</a> at <code>https://app.fabric.microsoft.com/home?experience=fabric</code> in a browser, and sign in with your Fabric credentials.</p>
+</li>
+<li>
+<p>In the menu bar on the left, select <strong>Workspaces</strong> (the icon looks similar to <strong>&#128455;</strong>).</p>
+</li>
+<li>
+<p>Create a new workspace with a name of your choice (for example, <em>Data-Engineering</em>).</p>
+</li>
+<li>
+<p>Choose a <strong>Fabric and Power BI workspace type</strong> in the <em>Advanced</em> section. The choices might be: <em>Fabric, Fabric trial, Power BI Premium</em>.</p>
+</li>
+<li>
+<p>When your new workspace opens, it should be empty.</p>
+<p><img alt="Screenshot of an empty workspace in Fabric." src="./Images/l25-new-workspace.png" /></p>
+</li>
+</ol>
+<h2>Create a lakehouse and load sample data</h2>
+<p>Now that you have a workspace, it's time to create a lakehouse and populate it with sample sales data. This lakehouse represents data that a data engineering team might have already created in a real organization.</p>
+<ol>
+<li>
+<p>Download the <a href="https://raw.githubusercontent.com/MicrosoftLearning/dp-data/main/sales.csv">sales.csv</a> file from <code>https://raw.githubusercontent.com/MicrosoftLearning/dp-data/main/sales.csv</code>, saving it as <strong>sales.csv</strong> on your local computer (or provided VM, if applicable).</p>
+<blockquote>
+<p><strong>Note</strong>: To download the file, open a new tab in the browser and paste in the URL. Right-click anywhere on the page and select <strong>Save as</strong> to save it as a CSV file.</p>
+</blockquote>
+</li>
+<li>
+<p>In your workspace, select <strong>+ New item</strong>, and then select <strong>Lakehouse</strong>. Give it a name of your choice (for example, <em>salesdata</em>).</p>
+<p>After a minute or so, a new lakehouse with empty <strong>Tables</strong> and <strong>Files</strong> folders will be created.</p>
+<p><img alt="Screenshot of a new lakehouse." src="./Images/l25-new-lakehouse.png" /></p>
+</li>
+<li>
+<p>In the lakehouse explorer, highlight the <strong>Files</strong> folder and select the ellipses <strong>(...)</strong> then <strong>Upload &gt; Upload files</strong>, and select the <strong>sales.csv</strong> file you just downloaded.</p>
+</li>
+<li>
+<p>After the file uploads, select the <strong>Files</strong> folder to verify that <strong>sales.csv</strong> was uploaded. Select the file to preview its contents.</p>
+<p><img alt="Screenshot of uploaded sales.csv file in a lakehouse." src="./Images/l25-uploaded-sales-file.png" /></p>
+</li>
+</ol>
+<h2>Load data into a table</h2>
+<p>Loading file data into a Delta table makes it queryable using SQL and provides reliability features like ACID transactions, which are similar to a traditional data warehouse.</p>
+<ol>
+<li>
+<p>In the <strong>Explorer</strong> pane, expand the <strong>Files</strong> folder to see the <strong>sales.csv</strong> file.</p>
+</li>
+<li>
+<p>In the ellipses <strong>(...)</strong> menu for the <strong>sales.csv</strong> file, select <strong>Load to Tables &gt; New table</strong>.</p>
+</li>
+<li>
+<p>In the <strong>Load to table</strong> dialog, set the table name to <strong>sales</strong> and confirm the load operation. Wait for the table to be created and loaded.</p>
+<blockquote>
+<p><strong>Tip</strong>: If the <strong>sales</strong> table doesn't automatically appear, select <strong>Refresh</strong> in the ellipses <strong>(...)</strong> menu for the <strong>Tables</strong> folder.</p>
+</blockquote>
+</li>
+<li>
+<p>In the <strong>Explorer</strong> pane, select the <strong>sales</strong> table to view its data and schema.</p>
+<p><img alt="Screenshot of a table preview." src="./Images/l25-table-preview.png" /></p>
+</li>
+</ol>
+<h2>Browse the OneLake catalog to discover data</h2>
+<p>Now that you have data in your lakehouse, you can explore how to discover it through the OneLake catalog. The catalog provides a centralized view of all data assets across your Fabric tenant.</p>
+<ol>
+<li>
+<p>At the top of the page, select the Fabric icon to return to the Fabric home page.</p>
+</li>
+<li>
+<p>In the left navigation pane, select the <strong>OneLake catalog</strong> icon. In the catalog, select the <strong>Explore</strong> tab and filter by <strong>Data items</strong> if it isn't already selected.</p>
+<p><img alt="Screenshot showing the OneLake catalog with various data assets listed." src="./Images/l25-onelake-catalog-explore.png" /></p>
+</li>
+<li>
+<p>In the catalog, you see various item types including lakehouses, warehouses, semantic models, and reports. Browse the list to find your <strong>salesdata</strong> lakehouse (or whatever name you chose).</p>
+<blockquote>
+<p><strong>Note</strong>: Depending on what else is in your trial environment, you may see other items in the catalog. The catalog respects access permissions, so you only see items you have permission to access.</p>
+</blockquote>
+</li>
+<li>
+<p>Select your lakehouse to view its details. The detail pane shows metadata including:</p>
+<ul>
+<li><strong>Location</strong>: The workspace where the item is located</li>
+<li><strong>Data updated</strong>: When the data was last updated</li>
+<li><strong>Owner</strong>: Who created the item</li>
+<li><strong>SQL connection string</strong>: How to connect using tools, such as SQL Server Management Studio (SSMS)</li>
+</ul>
+<p><img alt="Screenshot showing lakehouse details in the catalog with metadata displayed." src="./Images/l25-lakehouse-catalog-details.png" /></p>
+</li>
+<li>
+<p>Select <strong>Open</strong> and you will see the Lakehouse explorer view of your lakehouse.</p>
+</li>
+</ol>
+<h2>Explore lakehouse tables and schema</h2>
+<p>After discovering a data asset in the catalog, the next step is to explore its structure. Understanding the tables, columns, and data types helps you determine whether the data meets your needs.</p>
+<ol>
+<li>
+<p>From the catalog, select your <strong>salesdata</strong> lakehouse to open it.</p>
+</li>
+<li>
+<p>In the <strong>Explorer</strong> pane on the left, expand the <strong>Tables</strong> folder to see the <strong>sales</strong> table you created earlier.</p>
+</li>
+<li>
+<p>Select the <strong>sales</strong> table. The main view shows a preview of the data, displaying the first several rows.</p>
+<p><img alt="Screenshot showing Delta Lake files for the sales table." src="./Images/l25-delta-table-preview.png" /></p>
+</li>
+<li>
+<p>In the table preview, observe the column headers: <strong>SalesOrderNumber</strong>, <strong>SalesOrderLineNumber</strong>, <strong>OrderDate</strong>, <strong>CustomerName</strong>, <strong>EmailAddress</strong>, <strong>Item</strong>, <strong>Quantity</strong>, <strong>UnitPrice</strong>, and <strong>TaxAmount</strong>. Below the preview, you can see the schema showing each column's data type.</p>
+</li>
+<li>
+<p>Select <strong>File view</strong> to see the underlying files as well.</p>
+<p><img alt="Screenshot showing Delta Lake files for the sales table." src="./Images/l25-delta-table-files.png" /></p>
+</li>
+</ol>
+<p>The table is stored as Parquet files in the Delta Lake format. The <strong>_delta_log</strong> subfolder contains transaction logs that track all changes to the table, enabling features like ACID transactions and time travel.</p>
+<h2>Create a shortcut to access data from another workspace</h2>
+<p>Shortcuts let you reference data from other workspaces without copying it, providing a live connection to the source. In this task, you create a second lakehouse and a shortcut pointing to the sales data in your original lakehouse.</p>
+<ol>
+<li>
+<p>At the top of the page, select your workspace name to return to the workspace view.</p>
+</li>
+<li>
+<p>Select <strong>+ New item</strong> &gt; <strong>Lakehouse</strong> to create a second lakehouse. Name it <strong>analytics</strong> (or another name of your choice).</p>
+<p>This lakehouse represents your analytics workspace where you'll transform data and build semantic models.</p>
+</li>
+<li>
+<p>When the new lakehouse opens, in the <strong>Explorer</strong> pane, expand the <strong>Tables</strong> folder, then select the <strong>...</strong> menu for the <strong>dbo</strong> schema and select <strong>New table shortcut</strong>.</p>
+<p><img alt="Screenshot showing the New table shortcut option on the dbo schema." src="./Images/l25-create-table-shortcut-dbo.png" /></p>
+</li>
+<li>
+<p>In the <strong>New shortcut</strong> dialog, select <strong>OneLake</strong> as the shortcut source.</p>
+<p><img alt="Screenshot showing shortcut creation dialog with OneLake selected." src="./Images/l25-onelake-shortcut-options.png" /></p>
+</li>
+<li>
+<p>In the workspace list, select the workspace containing your original <strong>salesdata</strong> lakehouse (for example, <em>Data-Engineering</em>).</p>
+</li>
+<li>
+<p>Select the <strong>salesdata</strong> lakehouse, then select the <strong>Tables</strong> folder.</p>
+</li>
+<li>
+<p>Select the <strong>sales</strong> table, and then select <strong>Next</strong>.</p>
+</li>
+<li>
+<p>Review the shortcut details before selecting <strong>Create</strong>.</p>
+<ul>
+<li><strong>Target type</strong>: Which shortcut type, OneLake in this case</li>
+<li><strong>Shortcut location</strong>: The lakehouse you want the shortcut in</li>
+<li><strong>Shortcut name</strong>: Defaults to <em>sales</em></li>
+<li><strong>Source</strong>: The lakehouse where the data exists</li>
+</ul>
+<p><img alt="Screenshot showing shortcut confirmation with shortcut name and source location." src="./Images/l25-shortcut-confirmation.png" /></p>
+</li>
+<li>
+<p>In the <strong>Explorer</strong> pane of your <strong>analytics</strong> lakehouse, expand the <strong>Tables</strong> folder. You should see the <strong>sales</strong> table with a shortcut icon (a link overlay).</p>
+<p><img alt="Screenshot showing the sales table with a shortcut icon in the analytics lakehouse." src="./Images/l25-sales-shortcut.png" /></p>
+</li>
+<li>
+<p>Select the <strong>sales</strong> shortcut to view its data. The data is identical to the original table, but no data was copied. The shortcut provides a live reference to the source.</p>
+</li>
+</ol>
+<h2>Query data using the SQL analytics endpoint</h2>
+<p>Every lakehouse includes a SQL analytics endpoint that provides read-only T-SQL access to tables. This endpoint enables you to query lakehouse data using familiar SQL syntax, making it easy to explore data and verify it contains what you need.</p>
+<ol>
+<li>
+<p>At the top-right of your <strong>analytics</strong> lakehouse page, locate the drop-down menu that currently shows <strong>Lakehouse</strong>. Select the drop-down and switch to <strong>SQL analytics endpoint</strong>.</p>
+<p><img alt="Screenshot showing the switch from Lakehouse to SQL analytics endpoint." src="./Images/l25-switch-sql-endpoint.png" /></p>
+<p>The view changes to a SQL-focused interface where you can query tables using T-SQL.</p>
+</li>
+<li>
+<p>In the toolbar, select <strong>New SQL query</strong> to open a query editor.</p>
+</li>
+<li>
+<p>In the query editor, enter the following T-SQL query:</p>
+<p><code>sql
+SELECT 
+    Item,
+    SUM(Quantity * UnitPrice) AS TotalRevenue,
+    SUM(Quantity) AS TotalQuantity
+FROM sales
+GROUP BY Item
+ORDER BY TotalRevenue DESC;</code></p>
+<p>This query calculates total revenue and total quantity sold for each item.</p>
+</li>
+<li>
+<p>Select <strong>Run</strong> to execute the query. Review the results showing revenue by item.</p>
+<p><img alt="Screenshot showing SQL query results with revenue by item." src="./Images/l25-sql-query-results.png" /></p>
+</li>
+<li>
+<p>Write a second query to find the top customers by revenue:</p>
+<p><code>sql
+SELECT TOP 5
+    CustomerName,
+    SUM(Quantity) AS TotalQuantity,
+    SUM(Quantity * UnitPrice) AS TotalRevenue
+FROM sales
+GROUP BY CustomerName
+ORDER BY TotalRevenue DESC;</code></p>
+</li>
+<li>
+<p>Run the query and review the results.</p>
+</li>
+</ol>
+<h2>Create and explore a semantic model</h2>
+<p>Semantic models provide a business-friendly layer on top of data, including predefined relationships, measures, and calculations for Power BI reports. In this task, you create a semantic model from the lakehouse and explore it using the <em>Explore this data</em> feature.</p>
+<ol>
+<li>
+<p>While still in the SQL analytics endpoint view of your <strong>analytics</strong> lakehouse, select the <strong>New semantic model</strong> option in the toolbar.</p>
+<p><img alt="Screenshot showing the new semantic model option." src="./Images/l25-create-semantic-model.png" /></p>
+</li>
+<li>
+<p>In the <strong>Create a semantic model</strong> dialog, verify that the <strong>sales</strong> table is selected. Give the semantic model a name like <strong>Sales Analysis</strong> and select <strong>Create</strong>.</p>
+<blockquote>
+<p>After a moment, the semantic model is created. The model appears in your workspace.</p>
+</blockquote>
+</li>
+<li>
+<p>Navigate back to your workspace and find the <strong>Sales Analysis</strong> semantic model you just created. Select the ellipses <strong>(...)</strong> menu for the semantic model and choose <strong>Explore this data</strong>.</p>
+<p><img alt="Screenshot showing the Explore this data option for a semantic model." src="./Images/l25-explore-semantic-model.png" /></p>
+<p>The <strong>Explore this data</strong> feature opens a lightweight exploration interface where you can create quick visualizations without opening Power BI Desktop.</p>
+</li>
+<li>
+<p>In the <strong>Explore</strong> window, drag the <strong>Item</strong> field to the canvas to create a table visualization.</p>
+</li>
+<li>
+<p>Drag the <strong>Quantity</strong> field to the <strong>Values</strong> area to show total quantities by item.</p>
+</li>
+<li>
+<p>In the <strong>Visualizations</strong> pane, change the visualization type to a <strong>Bar chart</strong> or <strong>Column chart</strong> to see a graphical representation.</p>
+<p><img alt="Screenshot showing the Explore window with a bar chart of quantities by item." src="./Images/l25-explore-data-visualization.png" /></p>
+</li>
+<li>
+<p>Experiment with other fields and visualization types to explore the data.</p>
+</li>
+</ol>
+<h2>(Optional) Use Copilot to write a SQL query</h2>
+<p>If you have access to Microsoft Copilot in Fabric, you can use it to assist with writing SQL queries. Copilot can generate queries based on natural language descriptions, helping you explore data faster.</p>
+<blockquote>
+<p><strong>Note</strong>: This task requires Copilot access in your Fabric environment. If Copilot is not available, skip this task.</p>
+</blockquote>
+<ol>
+<li>
+<p>Return to your <strong>analytics</strong> lakehouse and switch to the <strong>SQL analytics endpoint</strong> view.</p>
+</li>
+<li>
+<p>Open a new SQL query editor.</p>
+</li>
+<li>
+<p>In the query editor, locate the <strong>Copilot</strong> button in the toolbar (it may appear as a lightbulb or Copilot icon).</p>
+</li>
+<li>
+<p>Select the Copilot button to open the Copilot pane.</p>
+</li>
+<li>
+<p>In the Copilot prompt, type a natural language request such as:</p>
+<p><code>Write a SQL query to show total revenue by month for the year 2026, sorted by month.</code></p>
+</li>
+<li>
+<p>Review the query that Copilot generates. It should look similar to:</p>
+<p><code>sql
+SELECT 
+    FORMAT(OrderDate, 'yyyy-MM') AS Month,
+    SUM(Quantity * UnitPrice) AS TotalRevenue
+FROM sales
+WHERE YEAR(OrderDate) = 2026
+GROUP BY FORMAT(OrderDate, 'yyyy-MM')
+ORDER BY Month;</code></p>
+</li>
+<li>
+<p>Select <strong>Insert</strong> to add the generated query to your editor, then select <strong>Run</strong> to execute it.</p>
+</li>
+<li>
+<p>Review the results. Try asking Copilot to write other queries, such as:</p>
+<ul>
+<li><em>"Show me the average unit price by item"</em></li>
+<li><em>"Find all orders with quantity greater than 10"</em></li>
+</ul>
+</li>
+</ol>
+<h2>Clean up resources</h2>
+<p>In this exercise, you created a lakehouse, explored the OneLake catalog, created shortcuts for cross-workspace access, queried data using the SQL analytics endpoint, and created a semantic model.</p>
+<p>Once you finished exploring your lakehouses and semantic models, you can delete the workspaces you created for this exercise.</p>
+<ol>
+<li>In the bar on the left, select the icon for your workspace to view all of the items it contains.</li>
+<li>In the toolbar, select <strong>Workspace settings</strong>.</li>
+<li>In the <strong>General</strong> section, select <strong>Remove this workspace</strong>.</li>
+<li>Repeat these steps for any additional workspaces you created (such as the analytics workspace).</li>
+</ol>
+            </article>
+        </main>
+    </div>
+    <footer class="fixed-bottom d-print-none">
+        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
+            <span class="navbar-text">
+                &copy; 2026 Microsoft &nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/ismayilsiyad/fabric-labs" target="_blank" class="ml-2">
+                    Source
+                </a>
+            </span>
+        </nav>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+
+</html>
