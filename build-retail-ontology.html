@@ -893,7 +893,7 @@
 </p>
 </li>
 <li><p>Notice that <em>Sale</em> and <em>Refrigeration_Telemetry</em> entity types can't be added to the graph. The graph in ontology doesn't currently support semantic model and eventhouse data sources.</p>
-<p>Verify that all entity types are selected except <em>Sale</em> and <em>Refrigeration_Telemetry</em>. Select <strong>Continue</strong>.</p>
+<p>Check the status of every entity, not only its checkbox. The intended ten-entity projection excludes <em>Sale</em> and <em>Refrigeration_Telemetry</em>. If Frozen Product or Perishable Product shows <strong>No primary key</strong>, the full projection is blocked by the inherited-key issue above. Stop before materializing a reduced graph unless your instructor approves that change. When all ten intended entities are eligible, select <strong>Continue</strong>.</p>
 <blockquote>
 <p><strong>Note: </strong>Currently, only delta tables from lakehouses or mirrored databases are supported data sources for the graph view.</p>
 </blockquote>
@@ -963,7 +963,7 @@
 <p>The agent opens in <strong>Plan</strong> mode by default. In Plan mode, the agent can query and explore the ontology, but it doesn't make any changes.</p>
 <h3 id="part-5-ask-questions-in-natural-language">Ask questions in natural language</h3>
 <p>Interact with the ontology agent to ask questions about the scenario in natural language.</p>
-<p>Enter the following question in the ontology agent text box and send it: <em>Which frozen products are stocked at Tier 1 stores in the West?</em></p>
+<p>Wait for the agent pane to finish loading, confirm <strong>Plan</strong> is selected, enter the following question in <strong>Say something</strong>, and select <strong>Send</strong>: <em>Which frozen products are stocked at Tier 1 stores in the West?</em></p>
 <p>The agent reasons for a short time and then provides an answer from your ontology:</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of the agent listing three items in answer to the question." src="./Images/iq-new-4-answer.png"/>
