@@ -964,7 +964,7 @@
 <h3 id="part-5-ask-questions-in-natural-language">Ask questions in natural language</h3>
 <p>Interact with the ontology agent to ask questions about the scenario in natural language.</p>
 <p>Wait for the agent pane to finish loading, confirm <strong>Plan</strong> is selected, enter the following question in <strong>Say something</strong>, and select <strong>Send</strong>: <em>Which frozen products are stocked at Tier 1 stores in the West?</em></p>
-<p>The agent reasons for a short time and then provides an answer from your ontology:</p>
+<p>The agent may take several minutes to inspect the schema and query the sources. Wait for its final answer, not only a completed progress step:</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of the agent listing three items in answer to the question." src="./Images/iq-new-4-answer.png"/>
 </span>
@@ -972,7 +972,7 @@
 <p>Explore the ontology further with the following queries, or create some of your own:</p>
 <ul>
 <li>Which of those inventory positions are below safety stock?</li>
-<li>Which affected stores had a qualifying refrigeration-temperature exception?</li>
+<li>Which affected stores had a qualifying refrigeration-temperature exception? Use the sample window <code>2026-08-27T19:00:00Z</code> through <code>2026-08-28T19:00:00Z</code>, not the current date.</li>
 <li>What inbound shipments are expected for the affected products and stores?</li>
 <li>What is the on-shelf availability of frozen products for each store?</li>
 <li>Which of these stores have low on-shelf availability?</li>
@@ -981,7 +981,7 @@
 </ul>
 <h4 id="part-5-answer-scenario-question">Answer scenario question</h4>
 <p>Use the agent to answer the major question of the Lakeshore Retail scenario: <em>Which high-priority stores in the West have frozen products below safety stock, a recent refrigeration-temperature exception, and on-shelf availability below target? For each store, show the next inbound shipment and its expected arrival.</em></p>
-<p>The agent considers your ontology and queries your data sources, then provides an answer to the question.</p>
+<p>Append: <em>Use the sample scenario as of 2026-08-28T19:00:00Z; check refrigeration telemetry from 2026-08-27T19:00:00Z through that time, and show future shipments relative to that sample time. State the thresholds, time window and supporting rows.</em> In the verified learner run, an unqualified temperature query used the last 30 days and incorrectly returned no exception because the sample telemetry is from August.</p><p>The agent considers your ontology and queries your data sources, then provides an answer to the question. Validate it before accepting it.</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of the agent listing two stores with columns containing the requested information." src="./Images/iq-new-4-answer-main-scenario.png"/>
 </span>
