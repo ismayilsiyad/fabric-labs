@@ -83,7 +83,8 @@
 <img alt="Screenshot of the load to tables dialog in lakehouse." src="./Images/iq-new-0-lakehouse-new-table.png"/>
 </span>
 </p>
-<p>Continue through the table creation dialog, keeping the default settings.</p>
+<p>In <strong>Load file to new table</strong>, keep the schema as <strong>dbo</strong> and the default lowercase table name. Confirm that <strong>Use header for column names</strong> is checked and <strong>Separator</strong> is a comma. If the header box is already checked, leave it checked. Select <strong>Load</strong>, then wait for the table job to finish before loading the next CSV.</p>
+<p><img alt="Verified live checkbox state: Use header for column names is checked." src="./Images/iq-live-header-check.png"/></p>
 </li>
 </ol>
 <p>The lakehouse looks like the following image when you're done. The default table names reflect the file names in all lowercase.</p>
@@ -91,6 +92,8 @@
 <img alt="Screenshot of the tables in the lakehouse." src="./Images/iq-new-0-lakehouse-tables.png"/>
 </span>
 </p>
+<p><strong>Verify the lakehouse:</strong> Open each table preview and check for real column names, not <code>_c0</code>, <code>_c1</code>, and so on. The CSV header must not appear as a data row. Expected row counts are dimlocations: 9; dimproducts: 8; dimsuppliers: 4; dim_refrigeration_units: 12; fact_inventory_positions: 48; factshipments: 8.</p>
+<p><img alt="Live lakehouse verification showing named LocationId and LocationType columns and nine dimlocations rows." src="./Images/iq-live-lakehouse-verified.png"/></p>
 <h3 id="part-1-prepare-the-eventhouse">Prepare the eventhouse</h3>
 <p>Follow these steps to upload the device streaming data file to a KQL database in an eventhouse.</p>
 <ol>
