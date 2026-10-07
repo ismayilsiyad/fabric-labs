@@ -116,10 +116,10 @@
 <img alt="Screenshot of uploading the csv file and creating the table." src="./Images/iq-new-0-eventhouse-get-data-table.png"/>
 </span>
 </p>
-<p>Continue through the table creation dialog, keeping the default settings.</p>
+<p>Before continuing, confirm the selected <em>refrigeration_telemetry.csv</em> shows a nonzero file size: the sample is <strong>224,693 bytes</strong> (about 219 KB). A file shown as <strong>0.0 B</strong> is not ready to ingest. Select the downloaded CSV again rather than continuing with an empty file.</p><p>Select <strong>Next</strong>. On <strong>Inspect</strong>, verify the CSV column headers: TelemetryId, UnitId, Timestamp, TemperatureC, HumidityPct, DoorOpen, and SensorStatus. Keep the inferred settings if correct, then select <strong>Finish</strong> and wait for ingestion to complete.</p>
 </li>
 </ol>
-<p>When you're done, the KQL database shows the <em>RefrigerationTelemetry</em> table with data:</p>
+<p>When you're done, the KQL database shows the <em>RefrigerationTelemetry</em> table with data:</p><p><strong>Verify ingestion:</strong> Run <code>RefrigerationTelemetry | count</code> in the database's KQL query editor. The result should be <strong>3,468</strong> rows. Confirm the named columns are present and the CSV header was not ingested as a data row before continuing to the semantic model.</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of the table in the database." src="./Images/iq-new-0-eventhouse-table.png"/>
 </span>
