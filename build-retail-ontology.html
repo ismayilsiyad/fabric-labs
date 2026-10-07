@@ -779,7 +779,7 @@
 <img alt="Screenshot of the relationship canvas view." src="./Images/iq-new-3-canvas-relationship.png"/>
 </span>
 </p>
-<h3 id="part-4-explore-entity-instances">Explore entity instances</h3>
+<h3 id="part-4-explore-entity-instances">Explore entity instances</h3><blockquote><p><strong>Verified troubleshooting:</strong> If Instances returns "Oops. Something went wrong", refresh once and check the saved property bindings. Define the entity type key described below before trying Instances again. In the learner run, Inventory rows loaded after its StoreId + ProductId key was saved; the earlier generic error did not identify a cause.</p></blockquote>
 <p>When you bound data to your entity types in Part 2 of this lab, ontology automatically created instances of those entity types that map to the source data rows. View the entity instances with these steps:</p>
 <ol>
 <li><p>Start in the Home configuration canvas of ontology. Select an entity type, and <strong>View Entity Type details</strong> from the top ribbon.</p>
@@ -798,7 +798,7 @@
 </blockquote>
 </li>
 </ol>
-<h3 id="part-4-explore-ontology-graph">Explore ontology graph</h3>
+<figure><img alt="Live Inventory source rows shown in the current Fabric Instances tab." src="./Images/ontology-live-inventory-instances.png"/><figcaption>Inventory Instances loaded with source rows after the composite key was defined. Close the first-use tour to see the full table.</figcaption></figure><h3 id="part-4-explore-ontology-graph">Explore ontology graph</h3>
 <p>Ontology comes with an optional built-in instance of <a href="https://learn.microsoft.com/en-us/fabric/graph/overview">graph in Microsoft Fabric</a>. This feature isn't required for your ontology to work, but you can set it up to add another option for viewing and exploring your ontology details.</p>
 <p>This section shows how to create an optional materialized graph from your existing ontology by selecting eligible entities and relationships and materializing the projection. Then, utilize the materialized graph to explore and discover connected data insights.</p>
 <h4 id="part-4-prepare-the-graph">Prepare the graph</h4>
@@ -876,11 +876,11 @@
 </tbody>
 </table></div>
 </li>
-<li><p>Repeat for each eligible lakehouse-backed entity type. Leave Sale and Refrigeration Telemetry without graph keys, as marked skip above.</p>
+<li><p>Repeat for each eligible lakehouse-backed entity type. Do not change the existing SaleId key created in Part 2. Skip Sale and Refrigeration Telemetry for graph preparation because their data sources are not eligible.</p>
 </li>
 </ol>
 </li>
-<li><p>Set up the graph instance. From the home canvas ribbon, select <strong>Manage graph</strong>.</p>
+<blockquote><p><strong>Current UI validation issue:</strong> In the verified learner run, saving ProductId as the key for Frozen Product or Perishable Product returned <code>EntityInheritedPropertyNameReused</code>. The key operation tried to create ProductId locally although it is inherited from Product. Do not rename the inherited identifier or remove inheritance to bypass this error. Keep the error details, continue the other keys, and check graph eligibility below. This is an unresolved platform validation issue, not a missing source column.</p></blockquote><li><p>Set up the graph instance. From the home canvas ribbon, select <strong>Manage graph</strong>.</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of opening the manage graph option from the ribbon." src="./Images/iq-new-3-manage-graph.png"/>
 </span>
@@ -987,7 +987,7 @@
 </span>
 </p>
 <blockquote><p><strong>Checkpoint:</strong> The ontology agent answers the final scenario question using the definitions, source data, metrics, and relationships you configured. Review the evidence before accepting the answer.</p></blockquote>
-<h3 id="validate-agent-answer">Validate the final answer</h3><ol><li>Keep the ontology agent in <strong>Plan</strong> mode for queries. Use <strong>Act</strong> only for an intended ontology change, after reviewing its plan.</li><li>Check the answer against Inventory instances, product storage limits, telemetry timestamps, shipments, and the SalesReport measures. Agent answers and screenshot row counts can vary.</li><li>The sample CSVs contain August 2026 timestamps. Treat "recent", "next", and "this month" relative to the sample scenario when testing, not as live operational data. Ask the agent to state its time window.</li><li>Confirm whether on-shelf availability is shown as a percentage or a fraction. The below-95 target means below 95%, or below 0.95 when the value is represented as a ratio.</li><li>If a query fails, confirm source access, saved bindings and matching columns, imported semantic model availability, and tenant configuration. Do not accept missing or incomplete data as proof that no stores are at risk.</li></ol><h2 id="review-and-clean-up">Review and clean up</h2><p>You have connected business relationships, inheritance, operational definitions, and governed metrics in one ontology. You can now explain which stores need attention and why.</p><ol><li>Review that all five checkpoints are complete. Keep the workspace if your instructor needs to inspect it.</li><li>When finished, remove only the dedicated lab workspace you created. Open its <strong>Workspace settings</strong>, then the <strong>General</strong> section, and choose <strong>Remove this workspace</strong>. Do not delete a shared or production workspace.</li></ol>
+<h3 id="validate-agent-answer">Validate the final answer</h3><ol><li>Keep the ontology agent in <strong>Plan</strong> mode for queries. Use <strong>Act</strong> only for an intended ontology change, after reviewing its plan.</li><li>Check the answer against Inventory instances, product storage limits, telemetry timestamps, shipments, and the SalesReport measures. Agent answers and screenshot row counts can vary.</li><li>The sample CSVs contain August 2026 timestamps. Treat "recent", "next", and "this month" relative to the sample scenario when testing, not as live operational data. Ask the agent to state its time window.</li><li>Confirm whether on-shelf availability is shown as a percentage or a fraction. The below-95 target means below 95%, or below 0.95 when the value is represented as a ratio.</li><li>If a query fails, confirm source access, saved bindings and matching columns, imported semantic model availability, and tenant configuration. Do not accept missing or incomplete data as proof that no stores are at risk.</li></ol><h2 id="review-and-clean-up">Review and clean up</h2><p>You have connected business relationships, inheritance, operational definitions, and governed metrics in one ontology. You can now explain which stores need attention and why.</p><ol><li>Review that all five checkpoints are complete. Keep the workspace if your instructor needs to inspect it.</li><li>Optional cleanup, only with separate approval after review: remove a dedicated lab workspace that you created. Keep ws_ontology and its results for review. Open its <strong>Workspace settings</strong>, then the <strong>General</strong> section, and choose <strong>Remove this workspace</strong>. Do not delete a shared or production workspace.</li></ol>
 </article>
 </main>
 </div>
