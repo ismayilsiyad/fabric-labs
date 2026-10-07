@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Assignment 1: Assess and build the Lakeshore Retail database in MySQL | fabric-labs</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<meta content="Lakeshore Retail database readiness, table design and tested MySQL Workbench queries. Assignment 1 of a five-assignment progression." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<body data-spy="scroll" data-target="#linksMenu">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+<div class="container d-flex justify-content-between">
+<span class="my-1 title text-black">fabric-labs</span>
+<span class="ml-2">
+<a class="d-flex align-items-center" href="https://ismayilsiyad.github.io/fabric-labs/">
+<svg class="bi bi-house-door-fill" fill="currentColor" height="16" viewbox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"></path>
+</svg>
+                     Home
+                </a>
+</span>
+</div>
+</nav>
+<hr color-"gray"=""/>
+<div class="container">
+<main class="row extra-padding">
+<aside class="col-sm-2">
+<nav class="toc sticky-top" id="linksMenu">
+<ul class="nav navbar-nav flex-column">
+</ul>
+</nav>
+</aside>
+<hr class=""/>
+<article class="col-sm-10 mb-5"><h1>Assignment 1: Assess and build the Lakeshore Retail database in MySQL</h1>
+<p>Lakeshore Retail operates stores, distribution centers and refrigerated supply chains. Its team needs reliable product and location records before it can investigate low stock, cold-chain exceptions and replenishment delays. You will write a database readiness report, then build and query the first two operational tables in <strong>MySQL Workbench</strong>.</p>
+<p>This is Assignment 1 of a five-assignment business scenario: database foundations to OneLake and lakehouse ingestion to dimensional modeling and dataflows to semantic model validation and deployment to <a href="build-retail-ontology.html">ontology and business questions</a>. Use the same supplied Lakeshore data throughout. Approximate study time: 4–5 hours, with breaks between parts.</p>
+<h2 id="a1-ready">Part 1: Assess database readiness</h2>
+<h3>Understand the business problem</h3><p>Lakeshore currently receives product catalogs, location spreadsheets, shipment files and refrigeration readings from several teams. Assume for this readiness discussion that copies of these files are edited independently, names are repeated instead of stable identifiers, and updated prices do not reach every team. These are teaching assumptions, not defects introduced into the supplied sample files.</p>
+<ol><li>Describe a duplication problem, an inconsistent-value problem and an update problem that independent spreadsheets can cause. Give one consequence for stock or cold-chain decisions.</li><li>Explain why a product sold at many stores is hard to manage in one flat spreadsheet. Distinguish a product record from a store-product inventory position.</li><li>Explain why searches and access control become harder as the business grows.</li></ol>
+<h3>Classify data and choose storage</h3><p>For each item below, classify its structure and give a reason. Separate the business meaning of data from the file format used to transport it.</p><div class="lab-table-scroll"><table><thead><tr><th>Item</th><th>Your classification and reason</th></tr></thead><tbody><tr><td>Product CSV with fixed columns</td><td>Structured: fixed fields and rows. Explain your reasoning.</td></tr><tr><td>Location CSV, shipment CSV and inventory snapshot CSV</td><td>Complete your classification.</td></tr><tr><td>Refrigeration readings with Timestamp, UnitId and TemperatureC</td><td>Complete your classification; time-series data can still be structured.</td></tr><tr><td>A hypothetical JSON maintenance message with optional fields</td><td>Complete your classification. This is not an extra required sample file.</td></tr><tr><td>A hypothetical equipment photo, free-text incident note and voice memo</td><td>Classify each. These are discussion examples, not uploads.</td></tr></tbody></table></div>
+<ol><li>Recommend relational storage for product/location identifiers and relationships. Explain one reason another storage approach might suit the photo or variable maintenance message.</li><li>Name MySQL as the relational DBMS used here. Give one non-relational DBMS example from your course material.</li><li>For accuracy, access control, concurrent users, searching and backup/recovery, write one concrete benefit of a DBMS for Lakeshore. Explain why a backup still needs an operational plan.</li></ol>
+<h3>Design one table in words</h3><p>Choose Product or Location. List columns, what they store, plausible data types, a primary key and the reason it must be unique. No diagram is required. Compare your proposal with the sample headers in Part 2. Use <code>ProductId</code> or <code>LocationId</code>, not a mutable display name, as the identifier.</p><blockquote><p><strong>Checkpoint:</strong> Your readiness report covers file-management risks, data classification, database choice, DBMS responsibilities and one table design.</p></blockquote>
+<h2 id="a1-install">Part 2: Prepare MySQL Workbench</h2>
+<p>You need <strong>MySQL Server</strong> and <strong>MySQL Workbench</strong>. Workbench is the client; installing it alone does not create a running server. Use the course machine or an instructor-approved local installation. Do not connect these exercises to a production database.</p>
+<ol><li>Download the appropriate MySQL Community Server and Workbench packages from the <a href="https://dev.mysql.com/downloads/">official MySQL downloads</a>. Follow <a href="https://dev.mysql.com/doc/refman/8.0/en/windows-installation.html">MySQL Server installation</a> and <a href="https://dev.mysql.com/doc/workbench/en/wb-installing-windows.html">Workbench installation</a> for Windows, or the matching platform documentation. On a managed computer, ask the administrator to install the software; do not bypass device controls.</li><li>Configure a local server with the port and credentials approved by your instructor. Keep the password private. Default local port is commonly 3306; use the actual port configured on your machine.</li><li>Open Workbench. Select the <strong>+</strong> beside MySQL Connections. Set a connection name such as Lakeshore Local, use Standard TCP/IP with hostname <code>127.0.0.1</code>, your server port and your authorized username. Select <strong>Test Connection</strong>, enter the password when prompted, then save.</li><li>Open the connection and a new SQL tab. Run the confidence check below using the lightning-bolt Execute control. Workbench's execute-all shortcut on the verified Linux UI is Ctrl+Shift+Enter; shortcuts can differ on other platforms.</li></ol>
+<pre><code class="language-sql">SELECT VERSION() AS MySQLVersion, 'Lakeshore connection ready' AS Message;</code></pre>
+<figure><img alt="Actual MySQL Workbench run: server 8.0.46 and a successful connection query. The reference machine used port 3307; use your own configured port." src="Images/lakeshore-progression/a1-connection.png"/><figcaption>Actual MySQL Workbench run: server 8.0.46 and a successful connection query. The reference machine used port 3307; use your own configured port.</figcaption></figure>
+<p>The screenshots are from a real Linux Workbench 8.0.33 session with MySQL Server 8.0.46. Window arrangement and installer screens vary by operating system. No Fabric capacity or cloud account is required for this assignment.</p>
+<h2 id="a1-build">Part 3: Create and populate the operational tables</h2>
+<h3>Use the canonical samples</h3><p>Download <a download="" href="data/ontology/new-experience/dimlocations.csv">dimlocations.csv</a> and <a download="" href="data/ontology/new-experience/dimproducts.csv">dimproducts.csv</a>. They are two of the same eight inputs used in Assignment 5. Keep their headers, identifiers and values unchanged. Location contains both stores and distribution centers.</p>
+<ol><li>Create the <code>lakeshore_retail</code> database and select it. If that name already contains unrelated work, choose a dedicated name and use it consistently. Do not drop existing tables.</li><li>Create the two tables below. Compare their fields and keys with your written design. MySQL displays BOOLEAN as <code>tinyint(1)</code>; this is expected.</li></ol>
+<pre><code class="language-sql">CREATE DATABASE IF NOT EXISTS lakeshore_retail;
+USE lakeshore_retail;</code></pre><pre><code class="language-sql">CREATE TABLE dimlocations (
+  LocationId VARCHAR(20) PRIMARY KEY,
+  LocationType VARCHAR(10) NOT NULL,
+  Name VARCHAR(100) NOT NULL,
+  Region VARCHAR(20),
+  City VARCHAR(60),
+  StateProvince VARCHAR(10),
+  Country VARCHAR(10),
+  PriorityTier VARCHAR(10),
+  OperatingStatus VARCHAR(10),
+  SellingAreaSqFt INT,
+  StorageCapacityPallets INT,
+  Latitude DECIMAL(10,6),
+  Longitude DECIMAL(10,6)
+);
+
+CREATE TABLE dimproducts (
+  ProductId VARCHAR(20) PRIMARY KEY,
+  ProductName VARCHAR(100) NOT NULL,
+  Brand VARCHAR(100),
+  Category VARCHAR(30),
+  Subcategory VARCHAR(50),
+  StorageClass VARCHAR(20),
+  MinimumStorageTempC DECIMAL(6,2),
+  MaximumStorageTempC DECIMAL(6,2),
+  ShelfLifeDays INT,
+  SellByDateRequired BOOLEAN,
+  SupplierId VARCHAR(20),
+  StandardUnitPrice DECIMAL(10,2),
+  StandardUnitCost DECIMAL(10,2)
+);
+
+</code></pre>
+<p>For a full reproducible setup, download <a download="" href="data/ontology/new-experience/lakeshore-mysql-setup.sql">lakeshore-mysql-setup.sql</a>. It includes these CREATE statements and explicit INSERT statements for all 9 locations and 8 products, generated directly from the canonical CSVs. Open it with <strong>File &gt; Open SQL Script</strong> or the SQL editor's folder icon. Inspect it before running. If you already ran the CREATE statements, execute only its INSERT sections, not the entire setup again. If a table already has data, compare counts and do not reinsert duplicate identifiers.</p>
+<ol><li>Run the INSERT statements and inspect the result. They preserve empty temperature values as SQL NULL and booleans as TRUE/FALSE.</li><li>Run <code>DESCRIBE dimlocations;</code> and <code>DESCRIBE dimproducts;</code>. Confirm LocationId and ProductId respectively show PRI.</li><li>Run the row-count query below. Confirm 9 locations and 8 products. Explain why 9 locations does not mean 9 stores.</li></ol>
+<figure><img alt="Actual DESCRIBE dimproducts result: ProductId is the primary key, with 13 source columns." src="Images/lakeshore-progression/a1-describe.png"/><figcaption>Actual DESCRIBE dimproducts result: ProductId is the primary key, with 13 source columns.</figcaption></figure>
+<pre><code class="language-sql">SELECT 'dimlocations' AS TableName, COUNT(*) AS RowCount FROM dimlocations
+UNION ALL SELECT 'dimproducts', COUNT(*) FROM dimproducts;</code></pre>
+<figure><img alt="Actual Workbench setup result: 9 location rows and 8 product rows." src="Images/lakeshore-progression/a1-loaded-counts.png"/><figcaption>Actual Workbench setup result: 9 location rows and 8 product rows.</figcaption></figure>
+<h3>Practise INSERT without changing the shared sample</h3><p>The original practical asks you to add a row. Use a transaction for a clearly labeled practice row, then roll it back so the canonical product count stays 8 for later assignments. Run the whole block in one connection. Do not add invented products to the source CSV.</p>
+<pre><code class="language-sql">START TRANSACTION;
+INSERT INTO dimproducts (ProductId, ProductName, StorageClass, StandardUnitPrice)
+VALUES ('P-PRACTICE-001', 'Practice frozen item', 'FROZEN', 7.25);
+SELECT ProductId, ProductName FROM dimproducts WHERE ProductId = 'P-PRACTICE-001';
+ROLLBACK;
+SELECT COUNT(*) AS CanonicalProductCount FROM dimproducts;</code></pre>
+<figure><img alt="Actual practice INSERT transaction rolled back; canonical product count is 8." src="Images/lakeshore-progression/a1-practice-rollback.png"/><figcaption>Actual practice transaction: after ROLLBACK the canonical product count is still 8.</figcaption></figure><blockquote><p><strong>Checkpoint:</strong> Two tables exist with defined primary keys, correct source rows and a rolled-back practice INSERT. Save your SQL script and results.</p></blockquote>
+<h2 id="a1-query">Part 4: Answer business questions with SQL</h2>
+<p>For each query, record the SQL, the result and one sentence explaining its business meaning. First try writing it yourself, then compare with the downloadable <a download="" href="data/ontology/new-experience/lakeshore-mysql-queries.sql">query-check script</a>.</p>
+<div class="lab-table-scroll"><table><thead><tr><th>Operator</th><th>Business question</th><th>Verified check</th></tr></thead><tbody><tr><td>WHERE</td><td>Which products need frozen storage?</td><td>3 products</td></tr><tr><td>ORDER BY</td><td>List stores alphabetically by Name, excluding distribution centers.</td><td>6 stores</td></tr><tr><td>LIKE</td><td>Which product names contain Cheese?</td><td>Four Cheese Pizza, 1 row</td></tr><tr><td>IN</td><td>Which products are FROZEN or PERISHABLE?</td><td>5 rows</td></tr><tr><td>BETWEEN</td><td>Which standard unit prices are between 4 and 8 inclusive?</td><td>5 rows</td></tr><tr><td>DISTINCT</td><td>Which StorageClass values occur?</td><td>AMBIENT, FROZEN, PERISHABLE</td></tr><tr><td>IS NOT NULL</td><td>Which products have SupplierId assigned?</td><td>8 rows</td></tr><tr><td>COUNT</td><td>How many locations have LocationType = STORE?</td><td>6</td></tr></tbody></table></div>
+<pre><code class="language-sql">SELECT ProductId, ProductName, StorageClass, StandardUnitPrice
+FROM dimproducts
+WHERE StorageClass = 'FROZEN'
+ORDER BY StandardUnitPrice;</code></pre>
+<figure><img alt="Actual Workbench business query returns Wild Blueberries, Vanilla Bean Ice Cream and Four Cheese Pizza." src="Images/lakeshore-progression/a1-frozen-query.png"/><figcaption>Actual Workbench business query returns Wild Blueberries, Vanilla Bean Ice Cream and Four Cheese Pizza.</figcaption></figure>
+<p>Explain why <code>IS NOT NULL</code> differs from an empty string, why BETWEEN includes its endpoints, and why comparing product names is less reliable than using stable identifiers.</p><blockquote><p><strong>Checkpoint:</strong> All eight query types return the checks above. The complete query script was executed against the loaded MySQL sample. Your task is to explain the results, not copy reference screenshots.</p></blockquote>
+<h2 id="a1-submit">Part 5: Submit and prepare the Fabric handoff</h2>
+<ol><li>Submit your written readiness report and column design.</li><li>Submit your schema/INSERT SQL, the rolled-back practice INSERT and your eight queries with results and explanations.</li><li>Include screenshots of your successful connection query, DESCRIBE output and frozen-products query. Keep your passwords and unrelated data out of screenshots.</li><li>Keep the two canonical CSVs unchanged. Assignment 2 moves the same product/location records plus four additional operational CSVs into OneLake. It uses the supplied CSVs, not a new invented sales dataset and not an automatic connection to this local MySQL server.</li><li>Keep your dedicated local database for review. Do not delete resources unless separately instructed.</li></ol>
+<h3>Progression handoff</h3><p>You have established identifiers, types and reliable queries. Next, use the same scenario in Assignment 2 to discover governed data, load Delta tables and compare original tables with OneLake shortcuts. Later assignments build an inventory star model and a validated semantic model. Assignment 5 adds operational meaning and the ontology agent.</p>
+<h3>Source and verification notes</h3><p>This exercise combines the supplied IU1 Database Readiness Report and IU2 MySQL practical, replacing GreenLeaf records with the canonical Lakeshore product/location files. It retains the written reasoning and MySQL schema, INSERT, DESCRIBE and SELECT learning outcomes. Tested October 7, 2026: actual Workbench connection, table creation/INSERT, DESCRIBE, practice transaction and SQL checks. Installation on a learner's Windows machine is not independently verified by these Linux screenshots; follow the official platform-specific installer documentation.</p>
+</article>
+</main>
+</div>
+<footer class="fixed-bottom d-print-none">
+<nav class="navbar navbar-light bg-light d-flex justify-content-around">
+<span class="navbar-text">
+                © 2026 Microsoft  | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a> | 
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a> | 
+                <i aria-hidden="true" class="fa fa-github"></i>
+<a class="ml-2" href="https://github.com/ismayilsiyad/fabric-labs" target="_blank">
+                    Source
+                </a>
+</span>
+</nav>
+</footer>
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
