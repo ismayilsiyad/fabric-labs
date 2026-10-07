@@ -880,7 +880,7 @@
 </li>
 </ol>
 </li>
-<blockquote><p><strong>Current UI validation issue:</strong> In the verified learner run, saving ProductId as the key for Frozen Product or Perishable Product returned <code>EntityInheritedPropertyNameReused</code>. The key operation tried to create ProductId locally although it is inherited from Product. Do not rename the inherited identifier or remove inheritance to bypass this error. Keep the error details, continue the other keys, and check graph eligibility below. This is an unresolved platform validation issue, not a missing source column.</p></blockquote><li><p>Set up the graph instance. From the home canvas ribbon, select <strong>Manage graph</strong>.</p>
+<blockquote><p><strong>Current UI validation issue:</strong> In the verified learner run, saving ProductId as the key for Frozen Product or Perishable Product returned <code>EntityInheritedPropertyNameReused</code>. The key operation tried to create ProductId locally although it is inherited from Product. Do not rename the inherited identifier or remove inheritance to bypass this error. Keep the error details, continue the other keys, and check graph eligibility below. This is an unresolved platform validation issue, not a missing source column.</p></blockquote><li><p>Set up the graph instance. From the home canvas ribbon, select <strong>Manage graph</strong>. If the ribbon is crowded, open <strong>More Options</strong> and select <strong>Manage graph</strong> there.</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of opening the manage graph option from the ribbon." src="./Images/iq-new-3-manage-graph.png"/>
 </span>
@@ -898,7 +898,7 @@
 <p><strong>Note: </strong>Currently, only delta tables from lakehouses or mirrored databases are supported data sources for the graph view.</p>
 </blockquote>
 </li>
-<li><p>On the <strong>Projection Summary</strong> page, you see 10 entities. Select <strong>Materialize</strong>. Creating the graph model might take several minutes.</p>
+<figure><img alt="Current graph configuration showing Frozen Product without a primary key." src="./Images/ontology-live-graph-eligibility.png"/><figcaption>Verified learner run: eight eligible entities. Frozen Product and Perishable Product are ineligible because the inherited-key operation fails. Do not label this as the expected ten-entity graph.</figcaption></figure><li><p>On the <strong>Projection Summary</strong> page, you see 10 entities. Select <strong>Materialize</strong>. Creating the graph model might take several minutes.</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of selecting to materialize the graph." src="./Images/iq-new-3-materialize-graph.png"/>
 </span>
