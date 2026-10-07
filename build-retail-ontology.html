@@ -13,7 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script>hljs.initHighlightingOnLoad();</script>
 <link href="assets/css/style.css" rel="stylesheet"/>
-<meta content="A single step-by-step Fabric IQ lab covering ontology setup, inheritance, data bindings, metadata, rules, graph exploration, and the ontology agent." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<meta content="A single step-by-step Fabric IQ lab covering ontology setup, inheritance, data bindings, metadata, rules, entity instances, and the ontology agent." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
 <body data-spy="scroll" data-target="#linksMenu">
 <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
 <div class="container d-flex justify-content-between">
@@ -40,9 +40,9 @@
 <hr class=""/>
 <article class="col-sm-10 mb-5">
 <h1>Create and explore an ontology in Microsoft Fabric</h1>
-<p>In this lab, you build one complete <strong>Fabric IQ ontology (preview)</strong> for Lakeshore Retail. You connect lakehouse tables, refrigeration telemetry in an eventhouse, and a Power BI semantic model; create inherited entity types and relationships; add business definitions and rules; explore the graph; and use the built-in ontology agent to answer operational questions.</p>
+<p>In this lab, you build one complete <strong>Fabric IQ ontology (preview)</strong> for Lakeshore Retail. You connect lakehouse tables, refrigeration telemetry in an eventhouse, and a Power BI semantic model; create inherited entity types and relationships; add business definitions and rules; explore canvas views and entity instances; and use the built-in ontology agent to answer operational questions.</p>
 <blockquote><p><strong>Important:</strong> Ontology is in <a href="https://learn.microsoft.com/en-us/fabric/fundamentals/preview">preview</a>. This lab follows the five Microsoft Learn tutorial pages updated September 29, 2026, checked October 7, 2026. Preview interfaces can change. Screenshots are reference images from that tutorial, hosted locally.</p></blockquote>
-<p>Complete <strong>Parts 1-5 in order</strong>, using the same dedicated lab workspace throughout. Numbered steps restart for each task, as in the other labs on this site. The graph is optional; the ontology and agent can work without it.</p>
+<p>Complete <strong>Parts 1-5 in order</strong>, using the same dedicated lab workspace throughout. Numbered steps restart for each task, as in the other labs on this site.</p>
 <blockquote><p><strong>Before you start:</strong> This is the new retail-operations experience, not the older freezer tutorial. Use the eight sample files linked in Part 1, not the five CSVs used by the older labs. No separate data agent item is required.</p></blockquote>
 <h2 id="part-1">Part 1: Set up the environment</h2>
 <h3 id="part-1-prerequisites">Admin-only prerequisites (reference, not learner tasks)</h3>
@@ -758,7 +758,7 @@
 </li>
 </ol>
 <figure><img alt="Three business rules saved in the learner workspace with their linked entity types." src="./Images/ontology-live-three-rules.png"/><figcaption>Verified learner run: three distinct rules, with the expected linked concepts.</figcaption></figure><blockquote><p><strong>Checkpoint:</strong> Entity, property, and relationship metadata is saved, and the Business rules page contains three rules. Do not create Cold-chain exception twice; it is repeated in the rule reference table.</p></blockquote>
-<h2 id="part-4">Part 4: Explore instances and the ontology graph</h2>
+<h2 id="part-4">Part 4: Explore canvas views and entity instances</h2>
 <h3 id="part-4-explore-canvas-views">Explore canvas views</h3>
 <p>The home configuration canvas of ontology contains three views: <a href="#part-4-full-ontology">full ontology</a>, <a href="#part-4-lineage">lineage</a>, and <a href="#part-4-relationship">relationship</a>.</p>
 <h4 id="part-4-full-ontology">Full ontology</h4>
@@ -779,7 +779,7 @@
 <img alt="Screenshot of the relationship canvas view." src="./Images/iq-new-3-canvas-relationship.png"/>
 </span>
 </p>
-<h3 id="part-4-explore-entity-instances">Explore entity instances</h3><blockquote><p><strong>Verified troubleshooting:</strong> If Instances returns "Oops. Something went wrong", refresh once and check the saved property bindings. Define the entity type key described below before trying Instances again. In the learner run, Inventory rows loaded after its StoreId + ProductId key was saved; the earlier generic error did not identify a cause.</p></blockquote>
+<h3 id="part-4-explore-entity-instances">Explore entity instances</h3><blockquote><p><strong>Verified troubleshooting:</strong> If Instances returns "Oops. Something went wrong", refresh once and check the saved property bindings. For Inventory, confirm the composite key described below before trying Instances again. In the learner run, Inventory rows loaded after its StoreId + ProductId key was saved; the earlier generic error did not identify a cause.</p></blockquote>
 <p>When you bound data to your entity types in Part 2 of this lab, ontology automatically created instances of those entity types that map to the source data rows. View the entity instances with these steps:</p>
 <ol>
 <li><p>Start in the Home configuration canvas of ontology. Select an entity type, and <strong>View Entity Type details</strong> from the top ribbon.</p>
@@ -788,6 +788,7 @@
 </span>
 </p>
 </li>
+<li><p>For <strong>Inventory</strong>, open <strong>Configure</strong> and inspect the entity type key. If no key is defined, select <strong>Define entity type key</strong>. In <strong>Add or edit key</strong>, open <strong>Property list</strong> and select both <strong>StoreId</strong> and <strong>ProductId</strong>. Close the dropdown with Escape or by clicking outside it, then select <strong>Save</strong>. If the key is already defined, confirm it contains both fields and leave it unchanged.</p><p><span class="mx-imgBorder"><img alt="Selecting an entity type key in the entity configuration." src="./Images/iq-new-3-entity-type-key.png"/></span></p><p>Return to the Inventory entity type details. This composite key identifies each store-product inventory position.</p></li>
 <li><p>Open the <strong>Instances</strong> tab. You see a list of entity instances with data populated from the original lakehouse table data source. For example, the Inventory entity type instances have columns like <code>ProductId</code>, <code>OnHandQuantity</code>, and <code>ShelfAvailableUnits</code>.</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of the Inventory instances." src="./Images/iq-new-3-instances.png"/>
@@ -798,160 +799,8 @@
 </blockquote>
 </li>
 </ol>
-<figure><img alt="Live Inventory source rows shown in the current Fabric Instances tab." src="./Images/ontology-live-inventory-instances.png"/><figcaption>Inventory Instances loaded with source rows after the composite key was defined. Close the first-use tour to see the full table.</figcaption></figure><h3 id="part-4-explore-ontology-graph">Explore ontology graph</h3>
-<p>Ontology comes with an optional built-in instance of <a href="https://learn.microsoft.com/en-us/fabric/graph/overview">graph in Microsoft Fabric</a>. This feature isn't required for your ontology to work, but you can set it up to add another option for viewing and exploring your ontology details.</p>
-<p>This section shows how to create an optional materialized graph from your existing ontology by selecting eligible entities and relationships and materializing the projection. Then, utilize the materialized graph to explore and discover connected data insights.</p>
-<h4 id="part-4-prepare-the-graph">Prepare the graph</h4>
-<ol>
-<li><p>Prepare data for graph visualization by defining an <em>entity type key</em> for each entity type. An entity type key shows which field uniquely identifies a row of sample data.</p>
-<blockquote>
-<p><strong>Note: </strong>Entity types must have entity type keys defined to be eligible for graph projection.</p>
-</blockquote>
-<ol>
-<li><p>Select an entity type in the canvas and select <strong>View Entity Type details</strong>.</p>
-</li>
-<li><p>Select <strong>Define entity type key</strong>.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of selecting an entity type key." src="./Images/iq-new-3-entity-type-key.png"/>
-</span>
-</p>
-</li>
-<li><p>In <strong>Add or edit key</strong>, open <strong>Property list</strong> and check the key fields from the following table. For Inventory, select both <strong>StoreId</strong> and <strong>ProductId</strong>. Close the property dropdown with Escape or by clicking outside the list before selecting the dialog's <strong>Save</strong>; otherwise the open list can cover Save. Confirm the saved key is displayed on Configure.</p>
-<div class="lab-table-scroll"><table>
-<thead>
-<tr>
-<th>Entity type</th>
-<th>Entity type key</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Location</td>
-<td><code>LocationId</code></td>
-</tr>
-<tr>
-<td>Store</td>
-<td><code>LocationId</code></td>
-</tr>
-<tr>
-<td>Distribution Center</td>
-<td><code>LocationId</code></td>
-</tr>
-<tr>
-<td>Product</td>
-<td><code>ProductId</code></td>
-</tr>
-<tr>
-<td>Frozen Product</td>
-<td><code>ProductId</code></td>
-</tr>
-<tr>
-<td>Perishable Product</td>
-<td><code>ProductId</code></td>
-</tr>
-<tr>
-<td>Sale</td>
-<td><em>skip</em></td>
-</tr>
-<tr>
-<td>Inventory</td>
-<td><code>StoreId</code>, <code>ProductId</code> (multi-select)</td>
-</tr>
-<tr>
-<td>Refrigeration Unit</td>
-<td><code>UnitId</code></td>
-</tr>
-<tr>
-<td>Shipment</td>
-<td><code>ShipmentId</code></td>
-</tr>
-<tr>
-<td>Supplier</td>
-<td><code>SupplierId</code></td>
-</tr>
-<tr>
-<td>Refrigeration Telemetry</td>
-<td><em>skip</em></td>
-</tr>
-</tbody>
-</table></div>
-</li>
-<li><p>Repeat for each eligible lakehouse-backed entity type. Do not change the existing SaleId key created in Part 2. Skip Sale and Refrigeration Telemetry for graph preparation because their data sources are not eligible.</p>
-</li>
-</ol>
-</li>
-<blockquote><p><strong>Current UI validation issue:</strong> In the verified learner run, saving ProductId as the key for Frozen Product or Perishable Product returned <code>EntityInheritedPropertyNameReused</code>. The key operation tried to create ProductId locally although it is inherited from Product. Do not rename the inherited identifier or remove inheritance to bypass this error. Keep the error details, continue the other keys, and check graph eligibility below. This is an unresolved platform validation issue, not a missing source column.</p></blockquote><li><p>Set up the graph instance. From the home canvas ribbon, select <strong>Manage graph</strong>. If the ribbon is crowded, open <strong>More Options</strong> and select <strong>Manage graph</strong> there.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of opening the manage graph option from the ribbon." src="./Images/iq-new-3-manage-graph.png"/>
-</span>
-</p>
-</li>
-<li><p>The <strong>Configure Graph</strong> page loads with the default selection of <strong>Use the entire Ontology</strong>. You can see all entity types in the <strong>Entities</strong> section, and the <strong>Preview</strong> section shows what the graph looks like. Each entity type is projected as a graph node, and each relationship type is projected as a graph edge.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of configuring the graph by projecting the entire ontology." src="./Images/iq-new-3-configure-graph.png"/>
-</span>
-</p>
-</li>
-<li><p>Notice that <em>Sale</em> and <em>Refrigeration_Telemetry</em> entity types can't be added to the graph. The graph in ontology doesn't currently support semantic model and eventhouse data sources.</p>
-<p>Check the status of every entity, not only its checkbox. The intended ten-entity projection excludes <em>Sale</em> and <em>Refrigeration_Telemetry</em>. If Frozen Product or Perishable Product shows <strong>No primary key</strong>, the full projection is blocked by the inherited-key issue above. Stop before materializing a reduced graph unless your instructor approves that change. When all ten intended entities are eligible, select <strong>Continue</strong>. For an explicitly approved reduced run, continue with the eight eligible entities: Location, Store, Distribution Center, Product, Refrigeration Unit, Shipment, Inventory and Supplier. This excludes both product subtypes as well as Sale and Refrigeration Telemetry.</p>
-<blockquote>
-<p><strong>Note: </strong>Currently, only delta tables from lakehouses or mirrored databases are supported data sources for the graph view.</p>
-</blockquote>
-</li>
-<figure><img alt="Current graph configuration showing Frozen Product without a primary key." src="./Images/ontology-live-graph-eligibility.png"/><figcaption>Verified learner run: eight eligible entities. Frozen Product and Perishable Product are ineligible because the inherited-key operation fails. Do not label this as the expected ten-entity graph.</figcaption></figure><li><p>On <strong>Projection summary</strong>, confirm the entity count before selecting <strong>Materialize</strong>: ten for the intended full projection, or eight for the approved reduced projection. The verified reduced run showed exactly eight. Creating the graph model and loading its data can take several minutes; the new graph artifact appearing is not proof that its data load has finished.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of selecting to materialize the graph." src="./Images/iq-new-3-materialize-graph.png"/>
-</span>
-</p>
-</li>
-<li><p>When the graph finishes provisioning, return to the home canvas view. What opens automatically when the graph is done provisioning?</p>
-</li>
-</ol>
-<figure><img alt="Actual projection summary showing eight approved entities." src="./Images/ontology-live-eight-projection.png"/><figcaption>Approved reduced learner projection: eight entities. Keep subtype exclusions explicit.</figcaption></figure><figure><img alt="Graph data processing stopped due to unsupported features in the current environment." src="./Images/ontology-live-graph-environment-error.png"/><figcaption>Actual reduced graph: artifact created, data load stopped, eight node types and zero edges. This is not a usable graph checkpoint.</figcaption></figure><h4 id="part-4-explore-the-graph">Explore the graph</h4><blockquote><p><strong>Verification boundary:</strong> The graph exploration steps and reference screenshots below are the intended tutorial path. After approval, an eight-entity graph artifact was created, but its initial data load stopped with <strong>Data processing was stopped due to unsupported features in your current environment.</strong> The model lists eight node types and zero edges; a draft queryset currently lists zero nodes and zero edges. Do not run or mark the exploration checkpoint complete while the environment error remains. Inspect the graph status and the <strong>Learn more</strong> link, which opens <a href="https://learn.microsoft.com/en-us/fabric/graph/limitations">Microsoft graph limitations</a>. The banner alone does not identify the unsupported feature; do not guess or repeatedly materialize the graph. The full ten-entity projection remains blocked by inherited keys.</p></blockquote>
-<ol>
-<li><p>From the top ribbon, select <strong>Explore graph</strong>. This button is visible now that the graph is materialized.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of opening the explore graph option from the ribbon." src="./Images/iq-new-3-explore-graph.png"/>
-</span>
-</p>
-</li>
-<li><p>The graph queryset view opens. On the right side of the queryset, select the puzzle piece icon to expand the <strong>Components</strong> pane. The Components pane shows the list of nodes and edges that are available in your graph.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of the Components pane." src="./Images/iq-new-3-graph-components.png"/>
-</span>
-</p>
-</li>
-<li><p>Under <strong>Nodes</strong>, select <strong>Store</strong>, <strong>Product</strong>, and <strong>Shipment</strong>. Under <strong>Edges</strong>, select <strong>Shipment_Store</strong> and <strong>Shipment_Product</strong>. The nodes and relationships are added to the canvas.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of entities and relationships selected in the Components pane." src="./Images/iq-new-3-graph-components-selected.png"/>
-</span>
-</p>
-</li>
-<li><p>Select <strong>Path query</strong> from the top ribbon and confirm the <strong>Switch</strong> when prompted. In this view, you can create complex path-finding queries.</p>
-</li>
-<li><p>Enter the following query details to search for nodes within two hops of the Seattle store's relationship with the supplier Cascade Fresh Products.</p>
-<ul>
-<li><strong>Start node:</strong> Store</li>
-<li><strong>End node:</strong> Supplier</li>
-<li><strong>Filter start node:</strong> <em>City = Seattle</em></li>
-<li><strong>Filter end node:</strong> <em>SupplierName = Cascade Fresh Products</em></li>
-<li><strong>Max hops:</strong> 2</li>
-</ul>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of building a path query with a start node, direction, and end node." src="./Images/iq-new-3-path-query.png"/>
-</span>
-</p>
-</li>
-<li><p>Select <strong>Run</strong> to run the query and render the result in both the query result canvas and the path results pane.</p>
-<p><span class="mx-imgBorder">
-<img alt="Screenshot of the path query results." src="./Images/iq-new-3-path-query-results.png"/>
-</span>
-</p>
-</li>
-</ol>
-<p>If you want, try more queries and <a href="https://learn.microsoft.com/en-us/fabric/graph/overview">graph features</a> to explore the ontology further before continuing with the tutorial.</p>
-<blockquote><p><strong>Checkpoint:</strong> The Inventory Instances tab shows source rows. If you completed the optional graph, it includes 10 eligible lakehouse-backed entity types, with Sale and Refrigeration Telemetry excluded.</p></blockquote>
-<blockquote><p><strong>Graph troubleshooting:</strong> The source tutorial uses Max hops = 2 for the Seattle-to-supplier example. If no path appears, check the modeled route: Store - Inventory - Product - Supplier requires three edges. Try Max hops = 3 and confirm the corresponding relationships are present. Graph edge labels may differ from the reference screenshot; select the edges that connect Shipment to Store and Product.</p></blockquote>
+<figure><img alt="Live Inventory source rows shown in the current Fabric Instances tab." src="./Images/ontology-live-inventory-instances.png"/><figcaption>Inventory Instances loaded with source rows after the composite key was defined. Close the first-use tour to see the full table.</figcaption></figure><blockquote><p><strong>Checkpoint:</strong> You have explored the full ontology, lineage and relationship canvas views, and the Inventory Instances tab shows source rows.</p></blockquote>
+<p>Return to the ontology home canvas. Continue with Part 5 in the same ontology and workspace, using the entity types, data bindings, metadata and rules you created in Parts 2 and 3.</p>
 <h2 id="part-5">Part 5: Answer business questions with the ontology agent</h2>
 <h3 id="part-5-get-started-with-ontology-agent">Get started with ontology agent</h3>
 <p>The <a href="https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-agent">ontology agent (preview)</a> is an AI-powered Copilot that helps you build and operate ontologies over the data in your Microsoft Fabric workspace by using a chat interface and natural language.</p>
