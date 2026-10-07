@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>
+            Build a retail operations ontology in Fabric IQ | fabric-labs
+        </title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<meta content="A single step-by-step Fabric IQ lab covering ontology setup, inheritance, data bindings, metadata, rules, graph exploration, and the ontology agent." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<body data-spy="scroll" data-target="#linksMenu">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+<div class="container d-flex justify-content-between">
+<span class="my-1 title text-black">fabric-labs</span>
+<span class="ml-2">
+<a class="d-flex align-items-center" href="https://ismayilsiyad.github.io/fabric-labs/">
+<svg class="bi bi-house-door-fill" fill="currentColor" height="16" viewbox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"></path>
+</svg>
+                     Home
+                </a>
+</span>
+</div>
+</nav>
+<hr color-"gray"=""/>
+<div class="container">
+<main class="row extra-padding">
+<aside class="col-sm-2">
+<nav class="toc sticky-top" id="linksMenu">
+<ul class="nav navbar-nav flex-column">
+</ul>
+</nav>
+</aside>
+<hr class=""/>
+<article class="col-sm-10 mb-5">
+<h1>Build a retail operations ontology in Fabric IQ</h1>
+<p>In this lab, you build one complete <strong>Fabric IQ ontology (preview)</strong> for Lakeshore Retail. You connect lakehouse tables, refrigeration telemetry in an eventhouse, and a Power BI semantic model; create inherited entity types and relationships; add business definitions and rules; explore the graph; and use the built-in ontology agent to answer operational questions.</p>
+<blockquote><p><strong>Important:</strong> Ontology is in <a href="https://learn.microsoft.com/en-us/fabric/fundamentals/preview">preview</a>. This lab follows the five Microsoft Learn tutorial pages updated September 29, 2026, checked October 7, 2026. Preview interfaces can change. Screenshots are reference images from that tutorial, hosted locally.</p></blockquote>
+<p>Complete <strong>Parts 1-5 in order</strong>, using the same dedicated lab workspace throughout. Numbered steps restart for each task, as in the other labs on this site. The graph is optional; the ontology and agent can work without it.</p>
+<blockquote><p><strong>Before you start:</strong> This is the new retail-operations experience, not the older freezer tutorial. Use the eight sample files linked in Part 1, not the five CSVs used by the older labs. No separate data agent item is required.</p></blockquote>
+<h2 id="part-1">Part 1: Set up the environment</h2>
+<h3 id="part-1-prerequisites">Admin-only prerequisites (reference, not learner tasks)</h3>
+<div class="alert alert-success" role="alert"><strong>Learners: do not change tenant settings.</strong> These are one-time environment prerequisites handled by your Fabric administrator or course provider. The screenshots below are for reference only, not instructions for learners to perform admin actions. Continue with the learner tasks once your administrator confirms the environment is ready.</div><div class="lab-table-scroll"><table><thead><tr><th>Prerequisite</th><th>Who handles it</th><th>What the learner does instead</th></tr></thead><tbody><tr><td><strong>Users can create ontology (preview) items</strong></td><td>A Fabric administrator enables the setting for the learning accounts or relevant security group.</td><td>Check that <strong>Ontology (preview)</strong> appears under <strong>+ New item</strong>. If it is missing, ask your administrator or instructor to enable access. Do not open or edit the admin settings.</td></tr><tr><td><strong>Users can create Fabric items</strong></td><td>A Fabric administrator enables Fabric item creation for the learning accounts or relevant security group.</td><td>Check that <strong>Lakehouse</strong> and <strong>Eventhouse</strong> appear under <strong>+ New item</strong>. If either is unavailable, ask your administrator or instructor.</td></tr><tr><td>Access to a workspace backed by an available Fabric capacity</td><td>The course provider or an authorized workspace/capacity administrator supplies the workspace and capacity access.</td><td>Use the assigned learning workspace. Create a separate lab workspace only if your learning account has permission and your instructor asks you to. Do not buy capacity or change organization-wide capacity settings.</td></tr></tbody></table></div><p><strong>Administrator reference only:</strong> The current tutorial shows these tenant settings under <strong>OneLake catalog &gt; Govern &gt; Configurations &gt; Tenant settings</strong>. An administrator checks that the learner's account is included in the enabled scope. This lab does not assume the settings have already been enabled.</p><p><img alt="Screenshot of enabling ontology in the admin portal." src="./Images/iq-new-0-prerequisite-ontology.png"/></p><p><small>Admin-only reference: ontology item tenant setting. Learners skip this configuration screen.</small></p><p><img alt="Screenshot of enabling Fabric items in the admin portal." src="./Images/iq-new-0-prerequisite-fabric-items.png"/></p><p><small>Admin-only reference: Fabric item tenant setting. Learners skip this configuration screen.</small></p>
+<h3 id="part-1-scenario">Scenario</h3>
+<p>Lakeshore Retail is a multi-region retailer that sells general merchandise, perishable goods, and frozen products through stores supplied by regional distribution centers. Store operations teams need to maintain product availability without increasing waste, while frozen products must remain within safe storage temperatures throughout the retail cold chain.</p>
+<p>This tutorial works toward one concrete operational outcome: <em>Which high-priority stores in the West have frozen products below safety stock, a recent refrigeration-temperature exception, and on-shelf availability below target? For each store, show the next inbound shipment and its expected arrival.</em></p>
+<p>With a robust ontology, the ontology agent can answer this question. Design an ontology that helps the agent understand that a frozen product is a type of product, what below safety stock and temperature exception mean, how products are stocked at stores, which refrigeration units operate at each store, how inbound shipments connect distribution centers to stores, and how the governed Power BI measure for on-shelf availability should be calculated.</p>
+<p>The ontology in this tutorial connects operational signals, business definitions, governed metrics, and business relationships so that an agent can explain where intervention is needed and why.</p>
+<h4 id="part-1-ontology">Ontology</h4>
+<p>The Lakeshore Retail elements in this tutorial comprise the following ontology. Review the diagram to understand the entity types and relationships that are involved in the scenario.</p>
+<p><span class="mx-imgBorder">
+<img alt="Diagram showing entity types like Store, Shipment, and Product connected by relationships like deliversTo and stockedAt ." src="./Images/iq-new-0-scenario.png"/>
+</span>
+</p>
+<h3 id="part-1-download-sample-data">Download sample data</h3><p>Download each file below and keep the file names unchanged. Right-click and choose <strong>Save link as...</strong> if a CSV opens in your browser. For the PBIX file, use its download link. These local copies come from <a href="https://github.com/microsoft/fabric-samples/tree/main/docs-samples/iq/ontology/new-experience">Microsoft Fabric samples: New experience</a>.</p><div class="lab-table-scroll"><table><thead><tr><th>Sample file</th><th>Destination</th></tr></thead><tbody><tr><td><a download="" href="data/ontology/new-experience/SalesReport.pbix">SalesReport.pbix</a></td><td>Import into the workspace as a report and semantic model</td></tr><tr><td><a download="" href="data/ontology/new-experience/dim_refrigeration_units.csv">dim_refrigeration_units.csv</a></td><td>Lakehouse: load as a delta table</td></tr><tr><td><a download="" href="data/ontology/new-experience/dimlocations.csv">dimlocations.csv</a></td><td>Lakehouse: load as a delta table</td></tr><tr><td><a download="" href="data/ontology/new-experience/dimproducts.csv">dimproducts.csv</a></td><td>Lakehouse: load as a delta table</td></tr><tr><td><a download="" href="data/ontology/new-experience/dimsuppliers.csv">dimsuppliers.csv</a></td><td>Lakehouse: load as a delta table</td></tr><tr><td><a download="" href="data/ontology/new-experience/fact_inventory_positions.csv">fact_inventory_positions.csv</a></td><td>Lakehouse: load as a delta table</td></tr><tr><td><a download="" href="data/ontology/new-experience/factshipments.csv">factshipments.csv</a></td><td>Lakehouse: load as a delta table</td></tr><tr><td><a download="" href="data/ontology/new-experience/refrigeration_telemetry.csv">refrigeration_telemetry.csv</a></td><td>Eventhouse: RefrigerationTelemetry</td></tr></tbody></table></div><h3 id="create-workspace">Learner task: open your lab workspace</h3><ol><li>Open <a href="https://app.fabric.microsoft.com/home?experience=fabric">Microsoft Fabric</a> and sign in with your learning account.</li><li>Select <strong>Workspaces</strong> and open the dedicated learning workspace assigned by your instructor. If you were instructed to create your own workspace and have permission, select <strong>New workspace</strong>, give it a unique lab name, and use the available capacity specified by your instructor.</li><li>Use this workspace for all items in Parts 1-5. If the workspace has no capacity or you cannot create the required items, stop and ask your instructor or administrator to prepare the environment; do not change tenant settings yourself.</li></ol><h3 id="part-1-prepare-the-lakehouse">Prepare the lakehouse</h3>
+<p>Follow these steps to prepare the sample tutorial data in a lakehouse.</p>
+<ol>
+<li><p>Start in your Fabric workspace. Use the <strong>+ New item</strong> button to create a new <strong>Lakehouse</strong> item.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of creating a new lakehouse item." src="./Images/iq-new-0-lakehouse-new.png"/>
+</span>
+</p>
+</li>
+<li><p>For the lakehouse <strong>Name</strong>, enter <em>LakeshoreStaticDataLH</em>. For <strong>Location</strong>, select your workspace. Keep the <strong>Lakehouse schemas</strong> checkbox selected (default) and select <strong>Create</strong>.</p>
+</li>
+<li><p>The new lakehouse opens when it's ready. From the lakehouse ribbon, select <strong>Get data &gt; Upload files</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of uploading files to the lakehouse." src="./Images/iq-new-0-lakehouse-upload.png"/>
+</span>
+</p>
+</li>
+<li><p>Upload <strong>all except one of the sample CSV files</strong> to your lakehouse. Don't upload <em>refrigeration_telemetry.csv</em> (you upload this file to eventhouse instead in a later step), or <em>SalesReport.pbix</em> (you import this report and semantic model into the workspace in the next task).</p>
+</li>
+<li><p>Expand the <strong>Files</strong> folder in the Explorer to view your uploaded files. Next, load each file to a delta table.</p>
+<p>For each file, select <strong>...</strong> next to the file name, then <strong>Load to Tables &gt; New table</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the load to tables dialog in lakehouse." src="./Images/iq-new-0-lakehouse-new-table.png"/>
+</span>
+</p>
+<p>Continue through the table creation dialog, keeping the default settings.</p>
+</li>
+</ol>
+<p>The lakehouse looks like the following image when you're done. The default table names reflect the file names in all lowercase.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the tables in the lakehouse." src="./Images/iq-new-0-lakehouse-tables.png"/>
+</span>
+</p>
+<h3 id="part-1-prepare-the-eventhouse">Prepare the eventhouse</h3>
+<p>Follow these steps to upload the device streaming data file to a KQL database in an eventhouse.</p>
+<ol>
+<li><p>In your Fabric workspace, select <strong>+ New item</strong> to create a new eventhouse called <em>LakeshoreTelemetryDataEH</em>. Fabric creates a default KQL database with the same name.</p>
+</li>
+<li><p>The eventhouse opens when it's ready. Open the KQL database by selecting its name in the explorer.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the KQL database in the eventhouse." src="./Images/iq-new-0-eventhouse-database.png"/>
+</span>
+</p>
+</li>
+<li><p>Next, create a new table called <em>RefrigerationTelemetry</em> that uses the <em>refrigeration_telemetry.csv</em> sample file as a source.</p>
+<p>In the menu ribbon, select <strong>Get data &gt; Local file</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the data source options for the database." src="./Images/iq-new-0-eventhouse-get-data.png"/>
+</span>
+</p>
+<p>Create a <strong>New table</strong> called <em>RefrigerationTelemetry</em> and browse for the <em>refrigeration_telemetry.csv</em> file that you downloaded earlier.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of uploading the csv file and creating the table." src="./Images/iq-new-0-eventhouse-get-data-table.png"/>
+</span>
+</p>
+<p>Continue through the table creation dialog, keeping the default settings.</p>
+</li>
+</ol>
+<p>When you're done, the KQL database shows the <em>RefrigerationTelemetry</em> table with data:</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the table in the database." src="./Images/iq-new-0-eventhouse-table.png"/>
+</span>
+</p>
+<h3 id="part-1-upload-the-semantic-model">Upload the semantic model</h3>
+<p>Finally, upload the sample semantic model to your workspace.</p>
+<ol>
+<li><p>In your Fabric workspace, select <strong>Import</strong> &gt; <strong>Report, Paginated Report or Workbook</strong> &gt; <strong>From this computer</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of importing a report into a workspace." src="./Images/iq-new-0-import.png"/>
+</span>
+</p>
+<p>Find the <em>SalesReport.pbix</em> file that you downloaded and select <strong>Open</strong>.</p>
+</li>
+<li><p>The report is visible in your workspace, and a semantic model is created with the same name.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the report now visible in the workspace." src="./Images/iq-new-0-workspace-semantic-model.png"/>
+</span>
+</p>
+</li>
+</ol>
+<blockquote><p><strong>Checkpoint:</strong> Your workspace contains LakeshoreStaticDataLH with six delta tables, LakeshoreTelemetryDataEH with RefrigerationTelemetry, and both the SalesReport report and semantic model.</p></blockquote>
+<h2 id="part-2">Part 2: Create entity types, data bindings, and relationships</h2>
+<h3 id="part-2-create-ontology-preview-item">Create ontology (preview) item</h3>
+<ol>
+<li><p>In your Fabric workspace, select <strong>+ New item</strong>. Search for and select the <strong>Ontology (preview)</strong> item.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the ontology (preview) item." src="./Images/iq-new-1-new-ontology.png"/>
+</span>
+</p>
+</li>
+<li><p>In the <strong>New Ontology</strong> dialog, enter a <strong>Name</strong> of <em>LakeshoreOntology</em>. Set the <strong>Location</strong> to your workspace. Select <strong>Create</strong>.</p>
+<blockquote>
+<p><strong>Tip: </strong>Ontology names must be under 90 characters, begin with a letter, and include only numbers, letters, and underscores. Don't use spaces or dashes.</p>
+</blockquote>
+</li>
+</ol>
+<p>The ontology opens when it's ready.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of empty ontology in Fabric item." src="./Images/iq-new-1-ontology-blank.png"/>
+</span>
+</p>
+<blockquote>
+<p><strong>Note: </strong>If you see an error that Fabric is unable to create the ontology (preview) item, ask your administrator to confirm the required settings are enabled for your learning account, as described in the <a href="#part-1">Tutorial prerequisites</a>.</p>
+</blockquote>
+<p>Next, create entity types, data bindings, and relationships based on data from your lakehouse tables.</p>
+<h3 id="part-2-create-entity-types-and-data-bindings">Create entity types and data bindings</h3>
+<p>First, create entity types. Entity types represent types of objects in a business. After you create the entity types, create their properties by binding source data columns from the <em>LakeshoreStaticDataLH</em> lakehouse tables.</p>
+<h4 id="part-2-add-base-entity-type-location">Add base entity type (Location)</h4>
+<ol>
+<li><p>From the top ribbon, select <strong>+ Add entity type</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of adding entity type from the top ribbon." src="./Images/iq-new-1-add-entity-type.png"/>
+</span>
+</p>
+</li>
+<li><p>Enter <em>Location</em> for the entity type name and select <strong>Add Entity Type</strong>.</p>
+</li>
+<li><p>The Location entity type appears on the configuration canvas.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the new Location entity type." src="./Images/iq-new-1-location-entity-type.png"/>
+</span>
+</p>
+</li>
+</ol>
+<h4 id="part-2-bind-location-data">Bind Location data</h4>
+<ol>
+<li><p>On the configuration canvas or the Explorer, select <strong>...</strong> next to the entity name and select <strong>Bind data</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of selecting Bind data for Location." src="./Images/iq-new-1-location-bind-data.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>Add</strong> to add a data source.</p>
+</li>
+<li><p>Find the data source in the OneLake catalog. Expand <em>LakeshoreStaticDataLH</em> &gt; <em>dbo</em> and select the <em>dimlocations</em> table. Confirm with <strong>Select table</strong>.</p>
+</li>
+<li><p>The data source loads.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the data source after it is loaded." src="./Images/iq-new-1-location-bind-data-source.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>Entity type properties</strong> to see properties of the entity type. The columns from the <em>dimlocations</em> table automatically populate as proposed properties.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of properties automatically populated on the entity type." src="./Images/iq-new-1-location-bind-data-properties.png"/>
+</span>
+</p>
+</li>
+<li><p>Without making any changes to the properties, select <strong>Create</strong> to save the data binding. You see a banner confirming that <strong>Entity type updated successfully</strong>.</p>
+</li>
+<li><p>Select <strong>Cancel</strong> to close the property binding dialog.</p>
+</li>
+<li><p>You see the <strong>Configure</strong> page of the entity type details. This page surfaces information about the entity type, including its properties and data bindings. View your configured data bindings.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the data bindings in the Configure page." src="./Images/iq-new-1-location-bind-data-done.png"/>
+</span>
+</p>
+</li>
+</ol>
+<p>Now the Location entity type is complete.</p>
+<h4 id="part-2-add-inherited-entity-type-store">Add inherited entity type (Store)</h4>
+<p>Next, add an inherited entity type. The Store entity inherits from Location, which automatically gives it all of Location's properties.</p>
+<ol>
+<li><p>Select <strong>Home</strong> to return to the configuration canvas where you can add new entity types.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of returning home to the configuration canvas." src="./Images/iq-new-1-home.png"/>
+</span>
+</p>
+</li>
+<li><p>From the top ribbon, select <strong>+ Add entity type</strong>.</p>
+</li>
+<li><p>Enter <em>Store</em> for the <strong>Entity type name</strong>. Expand <strong>Additional configuration</strong> and set <strong>Choose entity to inherit from</strong> to <em>Location</em>. Select <strong>Add Entity Type</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of adding the Store entity type that inherits from Location." src="./Images/iq-new-1-add-store.png"/>
+</span>
+</p>
+</li>
+<li><p>The Store entity type appears on the configuration canvas.</p>
+</li>
+<li><p>Select the Store entity type and select <strong>View Entity Type details</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening entity type details for the Store entity type." src="./Images/iq-new-1-store-entity-type-details.png"/>
+</span>
+</p>
+</li>
+<li><p>In the <strong>Configure</strong> tab, confirm that the Store entity type already has properties. These properties are inherited from the Location parent, but you still need to bind them to a source.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the Store entity type's inherited properties." src="./Images/iq-new-1-store-properties-unbound.png"/>
+</span>
+</p>
+</li>
+</ol>
+<h4 id="part-2-bind-store-data">Bind Store data</h4>
+<ol>
+<li><p>Select <strong>Manage property bindings</strong> &gt; <strong>Add binding and properties</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of adding binding and properties to the Store entity type." src="./Images/iq-new-1-store-add-binding.png"/>
+</span>
+</p>
+<p>The property binding page opens.</p>
+</li>
+<li><p><strong>Add</strong> the <em>LakeshoreStaticDataLH</em> &gt; <em>dbo</em> &gt; <em>dimlocations</em> table as a data source.</p>
+</li>
+<li><p>Select <strong>Entity type properties</strong>, verify that properties have a populated source column, and select <strong>Create</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of source columns in the data binding." src="./Images/iq-new-1-store-add-binding-source-column.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>Cancel</strong> to return to the <strong>Configure</strong> page for the entity type.</p>
+</li>
+</ol>
+<p>Now the Store entity type is complete. Continue to the next section to create the rest of the entity types in the sample scenario.</p>
+<h4 id="part-2-add-other-entity-types">Add other entity types</h4><ol><li>Return <strong>Home</strong>, select <strong>+ Add entity type</strong>, and use each row of the table below to enter its name and parent. Create Location before Distribution Center, and Product before Frozen Product and Perishable Product.</li><li>For each new entity, open <strong>Bind data</strong> (or <strong>Manage property bindings &gt; Add binding and properties</strong> for inherited properties), add the listed source, and select <strong>Entity type properties</strong>.</li><li>Check that every property maps to the intended source column. Select <strong>Create</strong>, then <strong>Cancel</strong> to close the saved binding dialog and return to Configure.</li><li>Use the eventhouse table only for Refrigeration Telemetry. For lakehouse tables, expand the <strong>dbo</strong> schema when browsing the data source.</li></ol>
+<p>Use the same steps that you used for the Location and Store entity types to create the entity types described in the following table. Add all of their source columns as properties.</p>
+<div class="lab-table-scroll"><table>
+<thead>
+<tr>
+<th>Entity type name</th>
+<th>Inherits from</th>
+<th>Data source table</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distribution Center</td>
+<td>Location</td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>dimlocations</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Product</td>
+<td></td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>dimproducts</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Frozen Product</td>
+<td>Product</td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>dimproducts</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Perishable Product</td>
+<td>Product</td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>dimproducts</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td></td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>fact_inventory_positions</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Supplier</td>
+<td></td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>dimsuppliers</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Shipment</td>
+<td></td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>factshipments</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Refrigeration Unit</td>
+<td></td>
+<td><em>LakeshoreStaticDataLH</em> &gt; <em>dim_refrigeration_units</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Refrigeration Telemetry</td>
+<td></td>
+<td><em>LakeshoreTelemetryDataEH</em> &gt; <em>RefrigerationTelemetry</em></td>
+<td>This entity type uses the eventhouse table, not a lakehouse table, as its data source.</td>
+</tr>
+</tbody>
+</table></div>
+<p>When you finish, you see all the entity types listed in the <strong>Explorer</strong> in the configuration canvas.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the scenario entity types." src="./Images/iq-new-1-all-entity-types.png"/>
+</span>
+</p>
+<h4 id="part-2-add-sale-with-the-ontology-agent">Add Sale with the ontology agent</h4>
+<p>Finally, add one more entity type: Sale. Unlike the other entity types, Sale's source data is in a semantic model and has associated DAX measures. To bind this Sale data without having to recreate it manually, use the ontology agent.</p>
+<ol>
+<li><p>Select <strong>Ontology agent</strong> from the top ribbon. The ontology agent opens in <strong>Plan</strong> mode.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening the ontology agent in Plan mode." src="./Images/iq-new-1-ontology-agent.png"/>
+</span>
+</p>
+</li>
+<li><p>Send the following query: <em>Create a new entity type called Sale, bound to data in the Sales table from the SalesReport semantic model inside this workspace.</em></p>
+</li>
+<li><p>The ontology agent reasons and creates a plan for adding the new entity type.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the ontology agent's plan for adding the entity type." src="./Images/iq-new-1-ontology-agent-plan.png"/>
+</span>
+</p>
+</li>
+<li><p>Toggle to <strong>Act</strong> mode and send <em>Apply the entity type plan</em>.</p>
+</li>
+<li><p>The ontology agent adds the Sale entity type to the canvas.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the ontology agent's success message and the Sale entity type added to the canvas." src="./Images/iq-new-1-ontology-agent-sale.png"/>
+</span>
+</p>
+</li>
+<li><p>With the new Sale entity type highlighted, select <strong>View Entity Type details</strong>.</p>
+</li>
+<li><p>Verify that <strong>Properties</strong> are populated and bound to the semantic model data source.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the Sale entity properties." src="./Images/iq-new-1-sale-details.png"/>
+</span>
+</p>
+</li>
+<li><p>Scroll down to view the <strong>Metrics</strong> section and verify that two metrics are added. Ontology metrics are based on DAX measures from the semantic model source.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the Sale entity metrics with two entries." src="./Images/iq-new-1-sale-metrics.png"/>
+</span>
+</p>
+</li>
+</ol>
+<p>Now you have all entity types for the scenario created and bound to source data.</p>
+<h3 id="part-2-create-relationship-types">Create relationship types</h3>
+<p>Next, create relationship types between the entity types to represent contextual connections in your data.</p>
+<h4 id="part-2-store-operates-refrigeration-unit">Store operates Refrigeration Unit</h4>
+<ol>
+<li><p>Select the Store entity type from the <strong>Explorer</strong>.</p>
+</li>
+<li><p>Select <strong>Add relationship</strong> from the menu ribbon or the Explorer, or <strong>Add relationship type</strong> from the entity on the configuration canvas.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of adding a relationship type." src="./Images/iq-new-1-store-add-relationship.png"/>
+</span>
+</p>
+</li>
+<li><p>Enter the following relationship type details and select <strong>Create</strong>.</p>
+<ol>
+<li><strong>Relationship type name</strong>: <em>operates</em></li>
+<li><strong>Origin entity type</strong>: <em>Store</em></li>
+<li><strong>Target entity type</strong>: <em>Refrigeration Unit</em></li>
+</ol>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of entering relationship type details." src="./Images/iq-new-1-add-new-relationship.png"/>
+</span>
+</p>
+</li>
+<li><p>The relationship appears on the semantic canvas. Select it to open the relationship details configuration.</p>
+</li>
+<li><p>Observe the sections of the configuration page:</p>
+<ul>
+<li><strong>Origin entity type</strong>: Lists details of the origin entity type (Store)</li>
+<li><strong>Relationship</strong>: Sets details of the relationship type (<em>operates</em>)</li>
+<li><strong>Target entity type</strong>: Lists details of the target entity type (Refrigeration Unit)</li>
+</ul>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the relationship type configuration." src="./Images/iq-new-1-relationship-configuration.png"/>
+</span>
+</p>
+</li>
+<li><p>In the <strong>Origin entity type</strong> section, expand <strong>Property</strong> and select <code>LocationId</code>.</p>
+<p>In the <strong>Target entity type</strong> section, expand <strong>Property</strong> and select <code>StoreId</code>. These fields indicate that the <code>LocationId</code> on a Store can be matched to the <code>StoreId</code> on a Refrigeration Unit to relate them to each other.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the details filled out in the relationship type configuration." src="./Images/iq-new-1-relationship-configuration-done.png"/>
+</span>
+</p>
+</li>
+<li><p><strong>Save</strong> the relationship type. You see a banner confirming that the ontology <strong>Successfully updated the relationship type</strong>. Select <strong>Cancel</strong> to close the configuration options.</p>
+</li>
+<li><p>You see the <strong>Configure</strong> page for the Store entity type, where the new relationship is visible in the <strong>Relationships</strong> section.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the relationship type in the Configure page." src="./Images/iq-new-1-relationship-done.png"/>
+</span>
+</p>
+</li>
+</ol>
+<p>Now the first relationship is complete. Continue to the next section to create the rest of the relationship types in the sample scenario.</p>
+<h4 id="part-2-add-other-relationship-types">Add other relationship types</h4><blockquote><p><strong>Avoid duplicates:</strong> The first row below repeats the operates relationship you just created. Leave it as-is and add the remaining nine rows. The two stockedAt relationships have different origin and target types, so create both.</p></blockquote><ol><li>For each remaining row, select its origin entity, choose <strong>Add relationship</strong>, and enter the name, origin, and target exactly as shown.</li><li>Open the new relationship and select the origin and target <strong>Property</strong> values shown in parentheses.</li><li>Select <strong>Save</strong>, then <strong>Cancel</strong> to close the details. Confirm the relationship appears before continuing to the next row.</li></ol>
+<p>Select <strong>Home</strong> to return to the configuration canvas where you can add new relationship types.</p>
+<p>Follow the same steps that you used for the first relationship type to create the relationship types described in the following table.</p>
+<div class="lab-table-scroll"><table>
+<thead>
+<tr>
+<th>Relationship type name</th>
+<th>Origin entity type (Property)</th>
+<th>Target entity type (Property)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>operates</em></td>
+<td>Store (<code>LocationId</code>)</td>
+<td>Refrigeration Unit (<code>StoreId</code>)</td>
+</tr>
+<tr>
+<td><em>deliversTo</em></td>
+<td>Shipment (<code>ToStoreId</code>)</td>
+<td>Store (<code>LocationId</code>)</td>
+</tr>
+<tr>
+<td><em>occursAt</em></td>
+<td>Sale (<code>StoreId</code>)</td>
+<td>Store (<code>LocationId</code>)</td>
+</tr>
+<tr>
+<td><em>stockedAt</em></td>
+<td>Inventory (<code>StoreId</code>)</td>
+<td>Store (<code>LocationId</code>)</td>
+</tr>
+<tr>
+<td><em>originatesAt</em></td>
+<td>Shipment (<code>FromLocationId</code>)</td>
+<td>Distribution Center (<code>LocationId</code>)</td>
+</tr>
+<tr>
+<td><em>forProduct</em></td>
+<td>Sale (<code>ProductId</code>)</td>
+<td>Product (<code>ProductId</code>)</td>
+</tr>
+<tr>
+<td><em>stockedAt</em></td>
+<td>Product (<code>ProductId</code>)</td>
+<td>Inventory (<code>ProductId</code>)</td>
+</tr>
+<tr>
+<td><em>suppliedBy</em></td>
+<td>Product (<code>SupplierId</code>)</td>
+<td>Supplier (<code>SupplierId</code>)</td>
+</tr>
+<tr>
+<td><em>contains</em></td>
+<td>Shipment (<code>ProductId</code>)</td>
+<td>Product (<code>ProductId</code>)</td>
+</tr>
+<tr>
+<td><em>hasTelemetryReading</em></td>
+<td>Refrigeration Unit (<code>UnitId</code>)</td>
+<td>Refrigeration Telemetry (<code>UnitId</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<p>When you're done, the relationship types are visible on the configuration canvas.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the scenario relationship types." src="./Images/iq-new-1-all-relationship-types.png"/>
+</span>
+</p>
+<blockquote><p><strong>Checkpoint:</strong> You have 12 entity types, including Sale with two semantic-model metrics, and 10 relationship types. You created operates only once; it is repeated in the reference table for completeness.</p></blockquote>
+<h2 id="part-3">Part 3: Enrich the ontology with metadata and business rules</h2>
+<blockquote><p><strong>Important:</strong> Metadata descriptions explain business meaning; they do not themselves filter the bound rows. The tutorial describes Store as LocationType = STORE, Distribution Center as LocationType = DC, and product subtypes by StorageClass. Verify the subtype instances and the agent's filtering before treating results as filtered data. Business rules are definitions for consumers, not automatic alerts or actions.</p></blockquote><h3 id="part-3-add-metadata">Add metadata</h3>
+<p>You can add metadata to entity types and to specific properties on the entity types. You can also add metadata to relationships.</p>
+<h4 id="part-3-add-entity-type-metadata">Add entity type metadata</h4>
+<p>Metadata for entity types supports descriptions, synonyms, and additional metadata key-value pairs. Follow these steps to add that metadata to your entity types.</p>
+<ol>
+<li><p>Start with the Store entity type. Select it on the semantic canvas and select <strong>View Entity Type details</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening entity type details for Store." src="./Images/iq-new-2-store-view-entity-type-details.png"/>
+</span>
+</p>
+</li>
+<li><p>On the <strong>Configure</strong> page that opens, scroll down to the <strong>Entity metadata</strong> section.</p>
+</li>
+<li><p>Enter the following <strong>Description</strong>: <em>Filtered locations binding where LocationType = STORE; priorityDefinition=Tier 1 stores require same-day response.</em></p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of adding a metadata description to Store." src="./Images/iq-new-2-store-metadata.png"/>
+</span>
+</p>
+<p>Select <strong>Update</strong>.</p>
+</li>
+<li><p>Use the same steps that you used for the Store entity type to add the entity type metadata described in the following table.</p>
+<div class="lab-table-scroll"><table>
+<thead>
+<tr>
+<th>Entity type name</th>
+<th>Metadata</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distribution Center</td>
+<td><strong>Description:</strong> <em>Filtered locations binding where LocationType = DC.</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Frozen Product</td>
+<td><strong>Description:</strong> <em>Filtered items binding where StorageClass = FROZEN.</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Perishable Product</td>
+<td><strong>Description:</strong> <em>Filtered items binding where StorageClass = PERISHABLE.</em></td>
+<td></td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td><strong>Additional metadata:</strong><br/><br/> On-Shelf Availability % : On-shelf availability percentage is calculated by dividing the total ShelfAvailableUnits by the total ShelfCapacityUnits. If total ShelfCapacityUnits is zero, the result is blank to avoid division by zero. <br/><br/> Low On-Shelf Availability : On-Shelf Availability % less than 95</td>
+<td>Additional metadata is entered as key-value pairs.</td>
+</tr>
+<tr>
+<td>Sale</td>
+<td><strong>Description</strong> and <strong>Synonyms</strong> are already added to the entity type from the semantic model import.</td>
+<td>Just review the metadata that's already there (no need to add metadata manually).</td>
+</tr>
+</tbody>
+</table></div>
+</li>
+</ol>
+<h4 id="part-3-add-entity-type-property-metadata">Add entity type property metadata</h4>
+<p>Metadata for properties supports descriptions and additional metadata key-value pairs, but not synonyms. Follow these steps to add metadata to properties on your entity types.</p>
+<ol>
+<li><p>Start with Product &gt; <code>ProductId</code>. Select the Product entity type, select <strong>...</strong>, and then select <strong>Bind data</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening the Product data bindings." src="./Images/iq-new-2-product-bind-data.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>Entity type properties</strong> from the left pane to open the <strong>Properties</strong> list.</p>
+</li>
+<li><p>Next to the <code>ProductId</code> property, select <strong>Metadata</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of selecting metadata for the property." src="./Images/iq-new-2-product-property-metadata.png"/>
+</span>
+</p>
+</li>
+<li><p>For <strong>Description</strong>, enter <em>Enterprise product identifier; not a supplier SKU or UPC.</em></p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of entering metadata description for the property." src="./Images/iq-new-2-product-property-metadata-edit.png"/>
+</span>
+</p>
+<p>Select <strong>Update</strong>.</p>
+</li>
+<li><p>Select <strong>Save</strong>.</p>
+</li>
+<li><p>Use the same steps that you used for the Product &gt; <code>ProductId</code> property to add the property metadata described in the following table.</p>
+<div class="lab-table-scroll"><table>
+<thead>
+<tr>
+<th>Entity Type</th>
+<th>Property</th>
+<th>Metadata</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Refrigeration Telemetry</td>
+<td>TemperatureC</td>
+<td><strong>Description:</strong> Temperature in Celsius.</td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td>InventoryStatus</td>
+<td><strong>Description:</strong> 0 is AT_RISK and 1 is HEALTHY.</td>
+</tr>
+</tbody>
+</table></div>
+</li>
+</ol>
+<h4 id="part-3-add-relationship-metadata">Add relationship metadata</h4>
+<p>Metadata for relationship types supports descriptions and additional metadata key-value pairs, but not synonyms. Follow these steps to add metadata to your relationship types.</p>
+<ol>
+<li><p>Start with <em>Store operates Refrigeration Unit</em>. Select the Store entity in the <strong>Explorer</strong> to show it on the configuration canvas, and select the <em>operates</em> relationship connected to it to open the relationship configuration options.</p>
+</li>
+<li><p>Scroll down to the <strong>Metadata</strong> section. Select <strong>Edit</strong>.</p>
+<p>For <strong>Description</strong>, enter <em>Identifies the refrigeration equipment operating in a store.</em></p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of adding a metadata description to the relationship type." src="./Images/iq-new-2-relationship-metadata.png"/>
+</span>
+</p>
+<p>Select <strong>Update</strong>.</p>
+</li>
+<li><p>Use the same steps that you used for the <em>Store operates Refrigeration Unit</em> relationship type to add the relationship type metadata described in the following table.</p>
+<div class="lab-table-scroll"><table>
+<thead>
+<tr>
+<th>Relationship type name</th>
+<th>Source &gt; target entity type</th>
+<th>Metadata</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>operates</em></td>
+<td>Store &gt; Refrigeration Unit</td>
+<td><strong>Description:</strong> <em>Identifies the refrigeration equipment operating in a store.</em></td>
+</tr>
+<tr>
+<td><em>deliversTo</em></td>
+<td>Shipment &gt; Store</td>
+<td><strong>Description:</strong> <em>Identifies the store receiving the shipment.</em></td>
+</tr>
+<tr>
+<td><em>occursAt</em></td>
+<td>Sale &gt; Store</td>
+<td><strong>Description:</strong> <em>Identifies where the sale occurred.</em></td>
+</tr>
+<tr>
+<td><em>stockedAt</em></td>
+<td>Inventory &gt; Store</td>
+<td><strong>Description:</strong> <em>Represents an active store assortment and its current inventory position, not merely a historical sale.</em></td>
+</tr>
+<tr>
+<td><em>originatesAt</em></td>
+<td>Shipment &gt; Distribution Center</td>
+<td><strong>Description:</strong> <em>Identifies the distribution center sending the shipment.</em></td>
+</tr>
+<tr>
+<td><em>forProduct</em></td>
+<td>Sale &gt; Product</td>
+<td><strong>Description:</strong> <em>Identifies the item sold.</em></td>
+</tr>
+<tr>
+<td><em>stockedAt</em></td>
+<td>Product &gt; Inventory</td>
+<td><strong>Description:</strong> <em>The item is part of the store's active assortment and has a current inventory position there.</em></td>
+</tr>
+<tr>
+<td><em>suppliedBy</em></td>
+<td>Product &gt; Supplier</td>
+<td><strong>Description:</strong> <em>Identifies the supplier responsible for the items.</em></td>
+</tr>
+<tr>
+<td><em>contains</em></td>
+<td>Shipment &gt; Product</td>
+<td><strong>Description:</strong> <em>Identifies the item being replenished.</em></td>
+</tr>
+<tr>
+<td><em>hasTelemetryReading</em></td>
+<td>Refrigeration Unit &gt; Refrigeration Telemetry</td>
+<td><strong>Description:</strong> <em>Identified sensor telemetry readings for refrigeration units.</em></td>
+</tr>
+</tbody>
+</table></div>
+</li>
+</ol>
+<h3 id="part-3-add-rules">Add rules</h3><blockquote><p><strong>Rules are context:</strong> Creating these definitions does not start temperature monitoring or send notifications. Add each of the three distinct rules once; the first rule is repeated in the table only as a reference.</p></blockquote>
+<p>Next, add some business rules that give more detail about day-to-day operations. Write rules in natural language and link them to entity types, properties, and relationship types so consumers (like AI agents) can discover these rules and use them to ground their responses.</p>
+<ol>
+<li><p>In the <strong>Explorer</strong>, expand <strong>Overview</strong> and select <strong>Rules</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening the Business rules page." src="./Images/iq-new-2-rules.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>+ Create rule</strong>.</p>
+</li>
+<li><p>Enter the following rule details:</p>
+<ol>
+<li><strong>Name:</strong> Cold-chain exception</li>
+<li><strong>Definition:</strong> <em>A frozen product has a cold-chain exception when the temperature of the refrigeration unit storing it remains above the product's maximum storage temperature for more than 20 minutes.</em></li>
+<li><strong>Linked ontology concepts:</strong> Frozen Product, Refrigeration Unit</li>
+</ol>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of configuring rule details." src="./Images/iq-new-2-rules-configure.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>Save</strong>. After the rule finishes saving, select <strong>Cancel</strong> to close the configuration details.</p>
+</li>
+<li><p>You see the rule in the <strong>Business rules</strong> page.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the new rule on the Business rules page." src="./Images/iq-new-2-rules-done.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>New rule</strong> to add more rules. Add two rules with the following details:</p>
+<div class="lab-table-scroll"><table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Definition</th>
+<th>Linked concepts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cold-chain exception</td>
+<td><em>A frozen product has a cold-chain exception when the temperature of the refrigeration unit storing it remains above the product's maximum storage temperature for more than 20 minutes.</em></td>
+<td>- Frozen Product <br/>- Refrigeration Unit</td>
+</tr>
+<tr>
+<td>Inventory at risk</td>
+<td><em>A store inventory position is at risk when projected on-hand inventory falls below safety stock before the next scheduled delivery</em></td>
+<td>- Store <br/>- Inventory</td>
+</tr>
+<tr>
+<td>Late replenishment</td>
+<td><em>A replenishment shipment is late when its estimated arrival is more than four hours after its scheduled arrival.</em></td>
+<td>Shipment</td>
+</tr>
+</tbody>
+</table></div>
+</li>
+</ol>
+<blockquote><p><strong>Checkpoint:</strong> Entity, property, and relationship metadata is saved, and the Business rules page contains three rules. Do not create Cold-chain exception twice; it is repeated in the rule reference table.</p></blockquote>
+<h2 id="part-4">Part 4: Explore instances and the ontology graph</h2>
+<h3 id="part-4-explore-canvas-views">Explore canvas views</h3>
+<p>The home configuration canvas of ontology contains three views: <a href="#part-4-full-ontology">full ontology</a>, <a href="#part-4-lineage">lineage</a>, and <a href="#part-4-relationship">relationship</a>.</p>
+<h4 id="part-4-full-ontology">Full ontology</h4>
+<p>The <strong>Full ontology</strong> view of the canvas shows all entity types and relationships present in the ontology. Select an entity type from the <strong>Explorer</strong> to center it in the canvas window.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the full ontology canvas view." src="./Images/iq-new-3-canvas-full-ontology.png"/>
+</span>
+</p>
+<h4 id="part-4-lineage">Lineage</h4>
+<p>The <strong>Lineage</strong> view of the canvas shows the inheritance structure of entity items. Select an entity type from the <strong>Explorer</strong> to show it in the canvas along with any inheritance relationships.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the lineage canvas view." src="./Images/iq-new-3-canvas-lineage.png"/>
+</span>
+</p>
+<h4 id="part-4-relationship">Relationship</h4>
+<p>The <strong>Relationship</strong> view of the canvas shows the relationships of entity items. Select an entity type from the <strong>Explorer</strong> to show it in the canvas along with any modeled relationships.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the relationship canvas view." src="./Images/iq-new-3-canvas-relationship.png"/>
+</span>
+</p>
+<h3 id="part-4-explore-entity-instances">Explore entity instances</h3>
+<p>When you bound data to your entity types in Part 2 of this lab, ontology automatically created instances of those entity types that map to the source data rows. View the entity instances with these steps:</p>
+<ol>
+<li><p>Start in the Home configuration canvas of ontology. Select an entity type, and <strong>View Entity Type details</strong> from the top ribbon.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening the entity type details for Inventory." src="./Images/iq-new-3-view-entity-type-details.png"/>
+</span>
+</p>
+</li>
+<li><p>Open the <strong>Instances</strong> tab. You see a list of entity instances with data populated from the original lakehouse table data source. For example, the Inventory entity type instances have columns like <code>ProductId</code>, <code>OnHandQuantity</code>, and <code>ShelfAvailableUnits</code>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the Inventory instances." src="./Images/iq-new-3-instances.png"/>
+</span>
+</p>
+<blockquote>
+<p><strong>Tip: </strong>If data bindings don't load, confirm that the source data tables exist with matching column names, and that your Fabric identity has data access.</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="part-4-explore-ontology-graph">Explore ontology graph</h3>
+<p>Ontology comes with an optional built-in instance of <a href="https://learn.microsoft.com/en-us/fabric/graph/overview">graph in Microsoft Fabric</a>. This feature isn't required for your ontology to work, but you can set it up to add another option for viewing and exploring your ontology details.</p>
+<p>This section shows how to create an optional materialized graph from your existing ontology by selecting eligible entities and relationships and materializing the projection. Then, utilize the materialized graph to explore and discover connected data insights.</p>
+<h4 id="part-4-prepare-the-graph">Prepare the graph</h4>
+<ol>
+<li><p>Prepare data for graph visualization by defining an <em>entity type key</em> for each entity type. An entity type key shows which field uniquely identifies a row of sample data.</p>
+<blockquote>
+<p><strong>Note: </strong>Entity types must have entity type keys defined to be eligible for graph projection.</p>
+</blockquote>
+<ol>
+<li><p>Select an entity type in the canvas and select <strong>View Entity Type details</strong>.</p>
+</li>
+<li><p>Select <strong>Define entity type key</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of selecting an entity type key." src="./Images/iq-new-3-entity-type-key.png"/>
+</span>
+</p>
+</li>
+<li><p>Select the right key from the following table. Select <strong>Save</strong>.</p>
+<div class="lab-table-scroll"><table>
+<thead>
+<tr>
+<th>Entity type</th>
+<th>Entity type key</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Location</td>
+<td><code>LocationId</code></td>
+</tr>
+<tr>
+<td>Store</td>
+<td><code>LocationId</code></td>
+</tr>
+<tr>
+<td>Distribution Center</td>
+<td><code>LocationId</code></td>
+</tr>
+<tr>
+<td>Product</td>
+<td><code>ProductId</code></td>
+</tr>
+<tr>
+<td>Frozen Product</td>
+<td><code>ProductId</code></td>
+</tr>
+<tr>
+<td>Perishable Product</td>
+<td><code>ProductId</code></td>
+</tr>
+<tr>
+<td>Sale</td>
+<td><em>skip</em></td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td><code>StoreId</code>, <code>ProductId</code> (multi-select)</td>
+</tr>
+<tr>
+<td>Refrigeration Unit</td>
+<td><code>UnitId</code></td>
+</tr>
+<tr>
+<td>Shipment</td>
+<td><code>ShipmentId</code></td>
+</tr>
+<tr>
+<td>Supplier</td>
+<td><code>SupplierId</code></td>
+</tr>
+<tr>
+<td>Refrigeration Telemetry</td>
+<td><em>skip</em></td>
+</tr>
+</tbody>
+</table></div>
+</li>
+<li><p>Repeat for each eligible lakehouse-backed entity type. Leave Sale and Refrigeration Telemetry without graph keys, as marked skip above.</p>
+</li>
+</ol>
+</li>
+<li><p>Set up the graph instance. From the home canvas ribbon, select <strong>Manage graph</strong>.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening the manage graph option from the ribbon." src="./Images/iq-new-3-manage-graph.png"/>
+</span>
+</p>
+</li>
+<li><p>The <strong>Configure Graph</strong> page loads with the default selection of <strong>Use the entire Ontology</strong>. You can see all entity types in the <strong>Entities</strong> section, and the <strong>Preview</strong> section shows what the graph looks like. Each entity type is projected as a graph node, and each relationship type is projected as a graph edge.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of configuring the graph by projecting the entire ontology." src="./Images/iq-new-3-configure-graph.png"/>
+</span>
+</p>
+</li>
+<li><p>Notice that <em>Sale</em> and <em>Refrigeration_Telemetry</em> entity types can't be added to the graph. The graph in ontology doesn't currently support semantic model and eventhouse data sources.</p>
+<p>Verify that all entity types are selected except <em>Sale</em> and <em>Refrigeration_Telemetry</em>. Select <strong>Continue</strong>.</p>
+<blockquote>
+<p><strong>Note: </strong>Currently, only delta tables from lakehouses or mirrored databases are supported data sources for the graph view.</p>
+</blockquote>
+</li>
+<li><p>On the <strong>Projection Summary</strong> page, you see 10 entities. Select <strong>Materialize</strong>. Creating the graph model might take several minutes.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of selecting to materialize the graph." src="./Images/iq-new-3-materialize-graph.png"/>
+</span>
+</p>
+</li>
+<li><p>When the graph finishes provisioning, return to the home canvas view. What opens automatically when the graph is done provisioning?</p>
+</li>
+</ol>
+<h4 id="part-4-explore-the-graph">Explore the graph</h4>
+<ol>
+<li><p>From the top ribbon, select <strong>Explore graph</strong>. This button is visible now that the graph is materialized.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening the explore graph option from the ribbon." src="./Images/iq-new-3-explore-graph.png"/>
+</span>
+</p>
+</li>
+<li><p>The graph queryset view opens. On the right side of the queryset, select the puzzle piece icon to expand the <strong>Components</strong> pane. The Components pane shows the list of nodes and edges that are available in your graph.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the Components pane." src="./Images/iq-new-3-graph-components.png"/>
+</span>
+</p>
+</li>
+<li><p>Under <strong>Nodes</strong>, select <strong>Store</strong>, <strong>Product</strong>, and <strong>Shipment</strong>. Under <strong>Edges</strong>, select <strong>Shipment_Store</strong> and <strong>Shipment_Product</strong>. The nodes and relationships are added to the canvas.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of entities and relationships selected in the Components pane." src="./Images/iq-new-3-graph-components-selected.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>Path query</strong> from the top ribbon and confirm the <strong>Switch</strong> when prompted. In this view, you can create complex path-finding queries.</p>
+</li>
+<li><p>Enter the following query details to search for nodes within two hops of the Seattle store's relationship with the supplier Cascade Fresh Products.</p>
+<ul>
+<li><strong>Start node:</strong> Store</li>
+<li><strong>End node:</strong> Supplier</li>
+<li><strong>Filter start node:</strong> <em>City = Seattle</em></li>
+<li><strong>Filter end node:</strong> <em>SupplierName = Cascade Fresh Products</em></li>
+<li><strong>Max hops:</strong> 2</li>
+</ul>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of building a path query with a start node, direction, and end node." src="./Images/iq-new-3-path-query.png"/>
+</span>
+</p>
+</li>
+<li><p>Select <strong>Run</strong> to run the query and render the result in both the query result canvas and the path results pane.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the path query results." src="./Images/iq-new-3-path-query-results.png"/>
+</span>
+</p>
+</li>
+</ol>
+<p>If you want, try more queries and <a href="https://learn.microsoft.com/en-us/fabric/graph/overview">graph features</a> to explore the ontology further before continuing with the tutorial.</p>
+<blockquote><p><strong>Checkpoint:</strong> The Inventory Instances tab shows source rows. If you completed the optional graph, it includes 10 eligible lakehouse-backed entity types, with Sale and Refrigeration Telemetry excluded.</p></blockquote>
+<blockquote><p><strong>Graph troubleshooting:</strong> The source tutorial uses Max hops = 2 for the Seattle-to-supplier example. If no path appears, check the modeled route: Store - Inventory - Product - Supplier requires three edges. Try Max hops = 3 and confirm the corresponding relationships are present. Graph edge labels may differ from the reference screenshot; select the edges that connect Shipment to Store and Product.</p></blockquote>
+<h2 id="part-5">Part 5: Answer business questions with the ontology agent</h2>
+<h3 id="part-5-get-started-with-ontology-agent">Get started with ontology agent</h3>
+<p>The <a href="https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-agent">ontology agent (preview)</a> is an AI-powered Copilot that helps you build and operate ontologies over the data in your Microsoft Fabric workspace by using a chat interface and natural language.</p>
+<p>To access the ontology agent, select <strong>Ontology agent</strong> from the top ribbon in the home canvas. The agent opens in a pane on the right side of the screen.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of opening the ontology agent from the ribbon." src="./Images/iq-new-4-open-agent.png"/>
+</span>
+</p>
+<p>The agent opens in <strong>Plan</strong> mode by default. In Plan mode, the agent can query and explore the ontology, but it doesn't make any changes.</p>
+<h3 id="part-5-ask-questions-in-natural-language">Ask questions in natural language</h3>
+<p>Interact with the ontology agent to ask questions about the scenario in natural language.</p>
+<p>Enter the following question in the ontology agent text box and send it: <em>Which frozen products are stocked at Tier 1 stores in the West?</em></p>
+<p>The agent reasons for a short time and then provides an answer from your ontology:</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the agent listing three items in answer to the question." src="./Images/iq-new-4-answer.png"/>
+</span>
+</p>
+<p>Explore the ontology further with the following queries, or create some of your own:</p>
+<ul>
+<li>Which of those inventory positions are below safety stock?</li>
+<li>Which affected stores had a qualifying refrigeration-temperature exception?</li>
+<li>What inbound shipments are expected for the affected products and stores?</li>
+<li>What is the on-shelf availability of frozen products for each store?</li>
+<li>Which of these stores have low on-shelf availability?</li>
+<li>Which of these stores have declining gross margin this month?</li>
+<li>Which of these stores have declining gross margin?</li>
+</ul>
+<h4 id="part-5-answer-scenario-question">Answer scenario question</h4>
+<p>Use the agent to answer the major question of the Lakeshore Retail scenario: <em>Which high-priority stores in the West have frozen products below safety stock, a recent refrigeration-temperature exception, and on-shelf availability below target? For each store, show the next inbound shipment and its expected arrival.</em></p>
+<p>The agent considers your ontology and queries your data sources, then provides an answer to the question.</p>
+<p><span class="mx-imgBorder">
+<img alt="Screenshot of the agent listing two stores with columns containing the requested information." src="./Images/iq-new-4-answer-main-scenario.png"/>
+</span>
+</p>
+<blockquote><p><strong>Checkpoint:</strong> The ontology agent answers the final scenario question using the definitions, source data, metrics, and relationships you configured. Review the evidence before accepting the answer.</p></blockquote>
+<h3 id="validate-agent-answer">Validate the final answer</h3><ol><li>Keep the ontology agent in <strong>Plan</strong> mode for queries. Use <strong>Act</strong> only for an intended ontology change, after reviewing its plan.</li><li>Check the answer against Inventory instances, product storage limits, telemetry timestamps, shipments, and the SalesReport measures. Agent answers and screenshot row counts can vary.</li><li>The sample CSVs contain August 2026 timestamps. Treat "recent", "next", and "this month" relative to the sample scenario when testing, not as live operational data. Ask the agent to state its time window.</li><li>Confirm whether on-shelf availability is shown as a percentage or a fraction. The below-95 target means below 95%, or below 0.95 when the value is represented as a ratio.</li><li>If a query fails, confirm source access, saved bindings and matching columns, imported semantic model availability, and tenant configuration. Do not accept missing or incomplete data as proof that no stores are at risk.</li></ol><h2 id="review-and-clean-up">Review and clean up</h2><p>You have connected business relationships, inheritance, operational definitions, and governed metrics in one ontology. You can now explain which stores need attention and why.</p><ol><li>Review that all five checkpoints are complete. Keep the workspace if your instructor needs to inspect it.</li><li>When finished, remove only the dedicated lab workspace you created. Open its <strong>Workspace settings</strong>, then the <strong>General</strong> section, and choose <strong>Remove this workspace</strong>. Do not delete a shared or production workspace.</li></ol><h2 id="source-tutorial">Source tutorial</h2><p>Adapted into one lab from Microsoft's five-part ontology tutorial. Screenshots and sample data are from Microsoft. See the source pages for their reuse terms.</p><ul><li><a href="https://learn.microsoft.com/en-us/fabric/iq/ontology/tutorial-0-introduction">Part 1: Introduction and setup</a></li><li><a href="https://learn.microsoft.com/en-us/fabric/iq/ontology/tutorial-1-create-ontology">Part 2: Create an ontology</a></li><li><a href="https://learn.microsoft.com/en-us/fabric/iq/ontology/tutorial-2-enrich-ontology">Part 3: Enrich the ontology</a></li><li><a href="https://learn.microsoft.com/en-us/fabric/iq/ontology/tutorial-3-preview-ontology">Part 4: Explore the ontology</a></li><li><a href="https://learn.microsoft.com/en-us/fabric/iq/ontology/tutorial-4-use-agent">Part 5: Use the ontology agent</a></li></ul>
+</article>
+</main>
+</div>
+<footer class="fixed-bottom d-print-none">
+<nav class="navbar navbar-light bg-light d-flex justify-content-around">
+<span class="navbar-text">
+                © 2026 Microsoft  | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a> | 
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a> | 
+                <i aria-hidden="true" class="fa fa-github"></i>
+<a class="ml-2" href="https://github.com/ismayilsiyad/fabric-labs" target="_blank">
+                    Source
+                </a>
+</span>
+</nav>
+</footer>
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>

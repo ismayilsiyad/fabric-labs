@@ -1,0 +1,327 @@
+[
+  {
+    "file": "Images/iq-new-0-prerequisite-ontology.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/overview-tenant-settings/prerequisite-ontology.png",
+    "alt": "Screenshot of enabling ontology in the admin portal."
+  },
+  {
+    "file": "Images/iq-new-0-prerequisite-fabric-items.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/overview-tenant-settings/prerequisite-fabric-items.png",
+    "alt": "Screenshot of enabling Fabric items in the admin portal."
+  },
+  {
+    "file": "Images/iq-new-0-scenario.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/scenario.png",
+    "alt": "Diagram showing entity types like Store, Shipment, and Product connected by relationships like deliversTo and stockedAt ."
+  },
+  {
+    "file": "Images/iq-new-0-lakehouse-new.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/lakehouse-new.png",
+    "alt": "Screenshot of creating a new lakehouse item."
+  },
+  {
+    "file": "Images/iq-new-0-lakehouse-upload.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/lakehouse-upload.png",
+    "alt": "Screenshot of uploading files to the lakehouse."
+  },
+  {
+    "file": "Images/iq-new-0-lakehouse-new-table.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/lakehouse-new-table.png",
+    "alt": "Screenshot of the load to tables dialog in lakehouse."
+  },
+  {
+    "file": "Images/iq-new-0-lakehouse-tables.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/lakehouse-tables.png",
+    "alt": "Screenshot of the tables in the lakehouse."
+  },
+  {
+    "file": "Images/iq-new-0-eventhouse-database.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/eventhouse-database.png",
+    "alt": "Screenshot of the KQL database in the eventhouse."
+  },
+  {
+    "file": "Images/iq-new-0-eventhouse-get-data.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/eventhouse-get-data.png",
+    "alt": "Screenshot of the data source options for the database."
+  },
+  {
+    "file": "Images/iq-new-0-eventhouse-get-data-table.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/eventhouse-get-data-table.png",
+    "alt": "Screenshot of uploading the csv file and creating the table."
+  },
+  {
+    "file": "Images/iq-new-0-eventhouse-table.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/eventhouse-table.png",
+    "alt": "Screenshot of the table in the database."
+  },
+  {
+    "file": "Images/iq-new-0-import.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/import.png",
+    "alt": "Screenshot of importing a report into a workspace."
+  },
+  {
+    "file": "Images/iq-new-0-workspace-semantic-model.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-0-introduction/workspace-semantic-model.png",
+    "alt": "Screenshot of the report now visible in the workspace."
+  },
+  {
+    "file": "Images/iq-new-1-new-ontology.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/new-ontology.png",
+    "alt": "Screenshot of the ontology (preview) item."
+  },
+  {
+    "file": "Images/iq-new-1-ontology-blank.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/ontology-blank.png",
+    "alt": "Screenshot of empty ontology in Fabric item."
+  },
+  {
+    "file": "Images/iq-new-1-add-entity-type.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/add-entity-type.png",
+    "alt": "Screenshot of adding entity type from the top ribbon."
+  },
+  {
+    "file": "Images/iq-new-1-location-entity-type.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/location-entity-type.png",
+    "alt": "Screenshot of the new Location entity type."
+  },
+  {
+    "file": "Images/iq-new-1-location-bind-data.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/location-bind-data.png",
+    "alt": "Screenshot of selecting Bind data for Location."
+  },
+  {
+    "file": "Images/iq-new-1-location-bind-data-source.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/location-bind-data-source.png",
+    "alt": "Screenshot of the data source after it is loaded."
+  },
+  {
+    "file": "Images/iq-new-1-location-bind-data-properties.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/location-bind-data-properties.png",
+    "alt": "Screenshot of properties automatically populated on the entity type."
+  },
+  {
+    "file": "Images/iq-new-1-location-bind-data-done.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/location-bind-data-done.png",
+    "alt": "Screenshot of the data bindings in the Configure page."
+  },
+  {
+    "file": "Images/iq-new-1-home.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/home.png",
+    "alt": "Screenshot of returning home to the configuration canvas."
+  },
+  {
+    "file": "Images/iq-new-1-add-store.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/add-store.png",
+    "alt": "Screenshot of adding the Store entity type that inherits from Location."
+  },
+  {
+    "file": "Images/iq-new-1-store-entity-type-details.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/store-entity-type-details.png",
+    "alt": "Screenshot of opening entity type details for the Store entity type."
+  },
+  {
+    "file": "Images/iq-new-1-store-properties-unbound.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/store-properties-unbound.png",
+    "alt": "Screenshot of the Store entity type's inherited properties."
+  },
+  {
+    "file": "Images/iq-new-1-store-add-binding.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/store-add-binding.png",
+    "alt": "Screenshot of adding binding and properties to the Store entity type."
+  },
+  {
+    "file": "Images/iq-new-1-store-add-binding-source-column.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/store-add-binding-source-column.png",
+    "alt": "Screenshot of source columns in the data binding."
+  },
+  {
+    "file": "Images/iq-new-1-all-entity-types.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/all-entity-types.png",
+    "alt": "Screenshot of the scenario entity types."
+  },
+  {
+    "file": "Images/iq-new-1-ontology-agent.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/ontology-agent.png",
+    "alt": "Screenshot of opening the ontology agent in Plan mode."
+  },
+  {
+    "file": "Images/iq-new-1-ontology-agent-plan.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/ontology-agent-plan.png",
+    "alt": "Screenshot of the ontology agent's plan for adding the entity type."
+  },
+  {
+    "file": "Images/iq-new-1-ontology-agent-sale.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/ontology-agent-sale.png",
+    "alt": "Screenshot of the ontology agent's success message and the Sale entity type added to the canvas."
+  },
+  {
+    "file": "Images/iq-new-1-sale-details.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/sale-details.png",
+    "alt": "Screenshot of the Sale entity properties."
+  },
+  {
+    "file": "Images/iq-new-1-sale-metrics.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/sale-metrics.png",
+    "alt": "Screenshot of the Sale entity metrics with two entries."
+  },
+  {
+    "file": "Images/iq-new-1-store-add-relationship.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/store-add-relationship.png",
+    "alt": "Screenshot of adding a relationship type."
+  },
+  {
+    "file": "Images/iq-new-1-add-new-relationship.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/add-new-relationship.png",
+    "alt": "Screenshot of entering relationship type details."
+  },
+  {
+    "file": "Images/iq-new-1-relationship-configuration.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/relationship-configuration.png",
+    "alt": "Screenshot of the relationship type configuration."
+  },
+  {
+    "file": "Images/iq-new-1-relationship-configuration-done.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/relationship-configuration-done.png",
+    "alt": "Screenshot of the details filled out in the relationship type configuration."
+  },
+  {
+    "file": "Images/iq-new-1-relationship-done.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/relationship-done.png",
+    "alt": "Screenshot of the relationship type in the Configure page."
+  },
+  {
+    "file": "Images/iq-new-1-all-relationship-types.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-1-create-ontology/all-relationship-types.png",
+    "alt": "Screenshot of the scenario relationship types."
+  },
+  {
+    "file": "Images/iq-new-2-store-view-entity-type-details.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/store-view-entity-type-details.png",
+    "alt": "Screenshot of opening entity type details for Store."
+  },
+  {
+    "file": "Images/iq-new-2-store-metadata.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/store-metadata.png",
+    "alt": "Screenshot of adding a metadata description to Store."
+  },
+  {
+    "file": "Images/iq-new-2-product-bind-data.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/product-bind-data.png",
+    "alt": "Screenshot of opening the Product data bindings."
+  },
+  {
+    "file": "Images/iq-new-2-product-property-metadata.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/product-property-metadata.png",
+    "alt": "Screenshot of selecting metadata for the property."
+  },
+  {
+    "file": "Images/iq-new-2-product-property-metadata-edit.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/product-property-metadata-edit.png",
+    "alt": "Screenshot of entering metadata description for the property."
+  },
+  {
+    "file": "Images/iq-new-2-relationship-metadata.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/relationship-metadata.png",
+    "alt": "Screenshot of adding a metadata description to the relationship type."
+  },
+  {
+    "file": "Images/iq-new-2-rules.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/rules.png",
+    "alt": "Screenshot of opening the Business rules page."
+  },
+  {
+    "file": "Images/iq-new-2-rules-configure.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/rules-configure.png",
+    "alt": "Screenshot of configuring rule details."
+  },
+  {
+    "file": "Images/iq-new-2-rules-done.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-2-enrich-ontology/rules-done.png",
+    "alt": "Screenshot of the new rule on the Business rules page."
+  },
+  {
+    "file": "Images/iq-new-3-canvas-full-ontology.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/canvas-full-ontology.png",
+    "alt": "Screenshot of the full ontology canvas view."
+  },
+  {
+    "file": "Images/iq-new-3-canvas-lineage.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/canvas-lineage.png",
+    "alt": "Screenshot of the lineage canvas view."
+  },
+  {
+    "file": "Images/iq-new-3-canvas-relationship.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/canvas-relationship.png",
+    "alt": "Screenshot of the relationship canvas view."
+  },
+  {
+    "file": "Images/iq-new-3-view-entity-type-details.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/view-entity-type-details.png",
+    "alt": "Screenshot of opening the entity type details for Inventory."
+  },
+  {
+    "file": "Images/iq-new-3-instances.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/instances.png",
+    "alt": "Screenshot of the Inventory instances."
+  },
+  {
+    "file": "Images/iq-new-3-entity-type-key.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/entity-type-key.png",
+    "alt": "Screenshot of selecting an entity type key."
+  },
+  {
+    "file": "Images/iq-new-3-manage-graph.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/manage-graph.png",
+    "alt": "Screenshot of opening the manage graph option from the ribbon."
+  },
+  {
+    "file": "Images/iq-new-3-configure-graph.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/configure-graph.png",
+    "alt": "Screenshot of configuring the graph by projecting the entire ontology."
+  },
+  {
+    "file": "Images/iq-new-3-materialize-graph.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/materialize-graph.png",
+    "alt": "Screenshot of selecting to materialize the graph."
+  },
+  {
+    "file": "Images/iq-new-3-explore-graph.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/explore-graph.png",
+    "alt": "Screenshot of opening the explore graph option from the ribbon."
+  },
+  {
+    "file": "Images/iq-new-3-graph-components.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/graph-components.png",
+    "alt": "Screenshot of the Components pane."
+  },
+  {
+    "file": "Images/iq-new-3-graph-components-selected.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/graph-components-selected.png",
+    "alt": "Screenshot of entities and relationships selected in the Components pane."
+  },
+  {
+    "file": "Images/iq-new-3-path-query.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/path-query.png",
+    "alt": "Screenshot of building a path query with a start node, direction, and end node."
+  },
+  {
+    "file": "Images/iq-new-3-path-query-results.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-3-preview-ontology/path-query-results.png",
+    "alt": "Screenshot of the path query results."
+  },
+  {
+    "file": "Images/iq-new-4-open-agent.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-4-use-agent/open-agent.png",
+    "alt": "Screenshot of opening the ontology agent from the ribbon."
+  },
+  {
+    "file": "Images/iq-new-4-answer.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-4-use-agent/answer.png",
+    "alt": "Screenshot of the agent listing three items in answer to the question."
+  },
+  {
+    "file": "Images/iq-new-4-answer-main-scenario.png",
+    "source": "https://learn.microsoft.com/en-us/fabric/iq/ontology/media/tutorial-4-use-agent/answer-main-scenario.png",
+    "alt": "Screenshot of the agent listing two stores with columns containing the requested information."
+  }
+]
