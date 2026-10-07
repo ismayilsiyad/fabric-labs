@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Assignment 2: Discover and prepare Lakeshore data in OneLake | fabric-labs</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<meta content="Load Lakeshore static data in a Fabric lakehouse, discover it, use a OneLake shortcut, verify inventory and explore a product model." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<body data-spy="scroll" data-target="#linksMenu">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+<div class="container d-flex justify-content-between">
+<span class="my-1 title text-black">fabric-labs</span>
+<span class="ml-2">
+<a class="d-flex align-items-center" href="https://ismayilsiyad.github.io/fabric-labs/">
+<svg class="bi bi-house-door-fill" fill="currentColor" height="16" viewbox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"></path>
+</svg>
+                     Home
+                </a>
+</span>
+</div>
+</nav>
+<hr color-"gray"=""/>
+<div class="container">
+<main class="row extra-padding">
+<aside class="col-sm-2">
+<nav class="toc sticky-top" id="linksMenu">
+<ul class="nav navbar-nav flex-column">
+</ul>
+</nav>
+</aside>
+<hr class=""/>
+<article class="col-sm-10 mb-5"><h1>Assignment 2: Discover and prepare Lakeshore data in OneLake</h1>
+<p>Lakeshore's operations team needs shared product, location and stock records, not separate copies in each analyst's computer. In Assignment 1 you designed and queried product/location tables in MySQL. Now you will bring the same source records into a Fabric lakehouse, discover them through the OneLake catalog, reference a table with a shortcut, and check the data with SQL and a visual query.</p>
+<p>This is Assignment 2 of the five-assignment Lakeshore Retail progression. Keep the resources: Assignment 3 builds an inventory dimensional model from them, Assignment 4 validates and deploys a semantic model, and Assignment 5 uses the operational tables in an ontology.</p>
+<h2 id="a2-environment">Part 1: Create your workspace and identify the inputs</h2>
+<p>You need a learning account, permission to create workspaces and a Fabric-capable paid or trial capacity supplied by your instructor. Workspace access alone is not capacity. Do not buy capacity or alter tenant settings as part of this lab.</p>
+<ol><li>Open <a href="https://app.fabric.microsoft.com/home?experience=fabric">Microsoft Fabric</a> and sign in with your learning account.</li><li>Select Workspaces &gt; New workspace. Give it a unique name such as <code>LakeshoreProgressionDev-yourname</code>. In Advanced, select the available Fabric-capable workspace type and the capacity specified by your instructor. Select Apply.</li><li>Keep this new workspace for Assignments 2–5. If you cannot create it or select the required capacity, ask your instructor or administrator. Administrator setup is not a learner task.</li></ol>
+<figure><img alt="Actual newly created LakeshoreProgressionDev workspace" src="Images/lakeshore-progression/a2-new-workspace.png"/><figcaption>Actual newly created learning workspace. Your workspace name should be unique.</figcaption></figure>
+<p>Download the eight <a href="build-retail-ontology.html#part-1-download-sample-data">Lakeshore files</a>. This assignment loads six static CSV files: <code>dimlocations.csv</code>, <code>dimproducts.csv</code>, <code>dimsuppliers.csv</code>, <code>dim_refrigeration_units.csv</code>, <code>fact_inventory_positions.csv</code> and <code>factshipments.csv</code>. Keep <code>refrigeration_telemetry.csv</code> for the Eventhouse in Assignment 5, and <code>SalesReport.pbix</code> for its sales semantic model. Neither is another static lakehouse table in this task.</p>
+<p>Use the supplied CSVs, not a MySQL export or an unrelated sales.csv. Product/location identifiers match Assignment 1. Sample operational times are in August 2026; they are fixed training data, not current inventory.</p>
+<h2 id="a2-lakehouse">Part 2: Load the Lakeshore static data</h2>
+<ol><li>In your workspace, select + New item &gt; Lakehouse. Name it <code>LakeshoreStaticDataLH</code>. Keep Lakehouse schemas selected and choose Create.</li><li>Open Home &gt; Get data &gt; Upload files. Select the six static CSVs and Upload. Wait for completed status and nonzero size. Do not overwrite existing files.</li><li>Open Files and preview dimlocations.csv. Confirm the first record is Seattle Market and the header begins LocationId, LocationType, Name.</li><li>For each file, select its ... menu &gt; Load to Tables &gt; New table. Use schema dbo and the file's base name as the table name. Keep Use header for column names checked and Separator as comma. Select Load.</li><li>Wait for that table job to finish before starting the next one. The current UI rejects simultaneous table-load requests with a message asking you to wait.</li><li>Open each table preview. Confirm real column names and the counts below. If you see _c0 or a header as the first record, stop: the header setting was wrong.</li></ol>
+<figure><img alt="Actual load dialog with dbo and Use header for column names checked" src="Images/lakeshore-progression/a2-load-header.png"/><figcaption>Actual load settings: dbo schema, lowercase table name, header checked and comma separator.</figcaption></figure>
+<table><thead><tr><th>Table</th><th>Expected rows</th><th>Business role</th></tr></thead><tbody><tr><td>dimlocations</td><td>9</td><td>6 stores and 3 distribution centers</td></tr><tr><td>dimproducts</td><td>8</td><td>Product storage rules and standard prices/costs</td></tr><tr><td>dimsuppliers</td><td>4</td><td>Supplier context</td></tr><tr><td>dim_refrigeration_units</td><td>12</td><td>Equipment assigned to stores</td></tr><tr><td>fact_inventory_positions</td><td>48</td><td>One stock snapshot row per store/product</td></tr><tr><td>factshipments</td><td>8</td><td>Inbound shipment status</td></tr></tbody></table>
+<figure><img alt="Actual dimlocations preview with 13 columns and 9 rows" src="Images/lakeshore-progression/a2-table-preview.png"/><figcaption>Actual dimlocations preview: named fields and 9 rows, matching Assignment 1.</figcaption></figure>
+<p>The Files area holds source files. Tables holds managed Delta tables produced from them. Loading a CSV creates a table; simply uploading it does not. Open a table's Table view dropdown and select File view to inspect its Parquet data and <code>_delta_log</code>. Record what each represents.</p>
+<p><strong>Reference-run recovery:</strong> One first shipment load mistakenly used the header as a record, yielding 9 rows. It was preserved for review. The same CSV was loaded again into <code>factshipments_verified</code> with the header checked, producing 8 rows with named fields. If you encounter this, verify a separately named corrected table before using it downstream. Do not silently include a header in totals or delete earlier work.</p><figure><img alt="Actual corrected shipment preview with eight named rows" src="Images/lakeshore-progression/a2-shipments-verified.png"/><figcaption>Verified recovery table: 8 shipments. The earlier failed table remains separate.</figcaption></figure><h2 id="a2-catalog">Part 3: Discover the data and use a shortcut</h2>
+<ol><li>Select OneLake catalog in the left navigation. In Explore, choose your workspace, keep Type: Data items and filter for LakeshoreStaticDataLH.</li><li>Identify the lakehouse's owner, type and workspace. Expand its row to see the associated SQL analytics endpoint. The catalog only shows items you can access; absence is not evidence that no data exists.</li><li>Select Open to return to the lakehouse. Compare the original file header with the inferred table types.</li></ol>
+<figure><img alt="Actual catalog filtered to the LakeshoreProgressionDev lakehouse" src="Images/lakeshore-progression/a2-catalog.png"/><figcaption>Actual OneLake discovery: distinguish the correct workspace when names repeat.</figcaption></figure>
+<ol start="4"><li>Return to the workspace and create a second lakehouse named <code>LakeshoreAnalyticsLH</code>. It represents the analyst's consumption layer. Use the same workspace in this lab; a cross-workspace shortcut uses the same concept but requires permission in both workspaces.</li><li>In the new lakehouse select Get data &gt; New table shortcut &gt; Microsoft OneLake. Search for LakeshoreStaticDataLH and verify its workspace before selecting it. Do not select another lakehouse with the same name.</li><li>Select Next. If Connection method appears, retain Passthrough identity and select Connect. This uses each user's existing access; the shortcut does not grant source access.</li><li>Expand Tables &gt; dbo. Select the checkbox beside dimproducts and Next. Review the name, source and destination, then Create.</li><li>Open the shortcut table. Confirm 8 rows and the same product identifiers as the source. Explain why a shortcut references data rather than making an independent CSV copy.</li></ol>
+<figure><img alt="Actual shortcut preview for dimproducts using passthrough identity" src="Images/lakeshore-progression/a2-shortcut-review.png"/><figcaption>Actual shortcut review in LakeshoreAnalyticsLH. Check the source workspace before reaching this screen.</figcaption></figure>
+<figure><img alt="Actual shortcut dimproducts preview with eight rows" src="Images/lakeshore-progression/a2-shortcut-preview.png"/><figcaption>The created shortcut reads all 8 source products.</figcaption></figure>
+<blockquote><p><strong>Checkpoint:</strong> Six source files, six Delta tables, catalog discovery and one functioning table shortcut. No source files or earlier workspace results have been deleted.</p></blockquote>
+<h2 id="a2-query">Part 4: Verify with SQL and a visual query</h2>
+<ol><li>In LakeshoreStaticDataLH select Analyze data with &gt; SQL analytics endpoint. In this verified UI the endpoint is under Analyze data with, not the older Lakehouse/SQL dropdown.</li><li>Select New SQL query. Run the downloaded <a download="" href="data/ontology/new-experience/lakeshore-onelake-checks.sql">Lakeshore SQL checks</a> one statement at a time. Inspect the text before Run. Compare all six counts with Part 2.</li><li>Check the inventory totals: 48 rows, 6 stores, 1,738 on-hand units, 281 inbound units and 3 rows where OnHandQuantity is below ReorderPointQuantity.</li><li>Run the duplicate-grain check. It should return no rows for StoreId + ProductId + SnapshotDateTime. Why would duplicate snapshots inflate the totals?</li><li>Compare the product StorageClass counts with Assignment 1: AMBIENT 3, FROZEN 3, PERISHABLE 2.</li></ol>
+<figure><img alt="Actual SQL result showing 48 rows and 1738 units" src="Images/lakeshore-progression/a2-sql-inventory.png"/><figcaption>Actual SQL analytics endpoint result: 48 inventory positions and 1,738 on-hand units.</figcaption></figure>
+<figure><img alt="Actual duplicate grain query result with no rows" src="Images/lakeshore-progression/a2-grain-check.png"/><figcaption>Actual duplicate grain result: 0 duplicate snapshot groups.</figcaption></figure><figure><img alt="Actual SQL result showing 6 stores 281 inbound and 3 low rows" src="Images/lakeshore-progression/a2-sql-low-stock.png"/><figcaption>Actual SQL check: 6 stores, 281 inbound units and 3 below-reorder positions.</figcaption></figure>
+<p>This endpoint queries lakehouse tables. Do not try the MySQL INSERT or UPDATE exercise here. Inventory quantities are units, not sales revenue. StandardUnitCost represents cost, not a customer's sale price.</p>
+<ol start="6"><li>Open the dropdown beside New SQL query and select New visual query.</li><li>Expand Schemas &gt; dbo &gt; Tables. Drag dimproducts into the visual-query canvas and wait for its 8-row preview.</li><li>Select Transform &gt; Group by. There is no need to remove other columns before a Count rows grouping.</li><li>Use Basic: Group by StorageClass, New column name ProductCount, Operation Count rows. Select OK and wait for Completed.</li><li>Compare the three visual-query results with the SQL counts. The transformation belongs to the query; it has not changed the source product table.</li></ol>
+<figure><img alt="Actual completed visual query grouped by storage class" src="Images/lakeshore-progression/a2-visual-query.png"/><figcaption>Actual Power Query result: FROZEN 3, PERISHABLE 2 and AMBIENT 3.</figcaption></figure>
+<figure><img alt="Actual inventory Delta files and transaction log" src="Images/lakeshore-progression/a2-delta-files.png"/><figcaption>Actual managed inventory table's File view: Parquet data, _delta_log and metadata.</figcaption></figure>
+<h2 id="a2-model">Part 5: Create a small semantic model for exploration</h2>
+<p>This first model is a product catalog exploration, not the final inventory star model. Assignment 3 supplies that dimensional design; Assignment 4 adds model-quality and deployment work.</p>
+<ol><li>In the source SQL analytics endpoint select New semantic model. Name it <code>LakeshoreCatalogExplore</code>, select your new workspace, keep Direct Lake on SQL, and select only dbo.dimproducts.</li><li>Confirm the product checkbox is visibly selected and Confirm is enabled. Select Confirm once, then wait for the model to appear in the workspace.</li><li>Open the semantic model and inspect its dimproducts fields. Compare its ProductId and StorageClass fields with the source table.</li><li>In the model editor Home ribbon select Explore (Explore this data, preview). Dismiss the introduction with Got it. In Choose data search StorageClass and select it. In Rearrange data, use Columns &gt; Add data and select ProductId. Close the field popup. Inspect the product identifiers by storage class in the matrix and detail visual. Compare them with the source. The counted comparison is the tested visual query in Part 4; this exploration is not a numeric measure or a revenue chart.</li><li>If Explore this data is unavailable in your account's current UI, record the missing option and capture the model fields plus the visual-query results instead. Ask the instructor whether a report visual is required. Do not change tenant settings to reveal an option.</li></ol>
+<figure><img alt="Actual one-table Direct Lake semantic model selection" src="Images/lakeshore-progression/a2-semantic-create.png"/><figcaption>Actual model creation selection: dimproducts only, in the new progression workspace.</figcaption></figure>
+<figure><img alt="Actual Direct Lake product model fields" src="Images/lakeshore-progression/a2-model-fields.png"/><figcaption>Actual Direct Lake dimproducts model and its named fields.</figcaption></figure><figure><img alt="Actual product identifiers and storage classes in semantic exploration" src="Images/lakeshore-progression/a2-explore.png"/><figcaption>Actual semantic exploration: StorageClass rows and ProductId columns, with product details below. No count or revenue measure is claimed.</figcaption></figure><h2 id="a2-submit">Part 6: Submit and retain the environment</h2>
+<ol><li>Submit the catalog screenshot with your correct workspace and item, original Files list, six table counts, Delta File view and functioning shortcut.</li><li>Submit your SQL checks with results and an explanation of the inventory grain and below-reorder count.</li><li>Submit the visual-query steps/results and semantic-model field evidence and exploration visual.</li><li>Explain the difference between source CSV files, managed Delta tables, a shortcut, a read-only SQL analytics endpoint and a semantic model.</li><li>Keep all resources for Assignment 3 and review. Do not perform the source labs' optional workspace deletion.</li></ol>
+<h3>Source and verification notes</h3>
+<p>This assignment combines <a href="discover-onelake.html">Discover and connect to data in OneLake</a> and <a href="https://microsoftlearning.github.io/mslearn-fabric/Instructions/Labs/01-lakehouse.html">Create a Microsoft Fabric Lakehouse</a>, using the canonical Lakeshore files rather than sales.csv. Tested October 7, 2026: workspace/lakehouse creation, file upload, table loading, OneLake discovery, passthrough product shortcut, Delta file view, SQL inventory checks and visual-query grouping, duplicate-grain check (0 rows), Direct Lake model creation and field exploration. Learners must create their own evidence. The reference run retains earlier lab resources rather than deleting workspaces.</p>
+</article>
+</main>
+</div>
+<footer class="fixed-bottom d-print-none">
+<nav class="navbar navbar-light bg-light d-flex justify-content-around">
+<span class="navbar-text">
+                © 2026 Microsoft  | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a> | 
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a> | 
+                <i aria-hidden="true" class="fa fa-github"></i>
+<a class="ml-2" href="https://github.com/ismayilsiyad/fabric-labs" target="_blank">
+                    Source
+                </a>
+</span>
+</nav>
+</footer>
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
