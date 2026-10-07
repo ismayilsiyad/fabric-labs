@@ -893,12 +893,12 @@
 </p>
 </li>
 <li><p>Notice that <em>Sale</em> and <em>Refrigeration_Telemetry</em> entity types can't be added to the graph. The graph in ontology doesn't currently support semantic model and eventhouse data sources.</p>
-<p>Check the status of every entity, not only its checkbox. The intended ten-entity projection excludes <em>Sale</em> and <em>Refrigeration_Telemetry</em>. If Frozen Product or Perishable Product shows <strong>No primary key</strong>, the full projection is blocked by the inherited-key issue above. Stop before materializing a reduced graph unless your instructor approves that change. When all ten intended entities are eligible, select <strong>Continue</strong>.</p>
+<p>Check the status of every entity, not only its checkbox. The intended ten-entity projection excludes <em>Sale</em> and <em>Refrigeration_Telemetry</em>. If Frozen Product or Perishable Product shows <strong>No primary key</strong>, the full projection is blocked by the inherited-key issue above. Stop before materializing a reduced graph unless your instructor approves that change. When all ten intended entities are eligible, select <strong>Continue</strong>. For an explicitly approved reduced run, continue with the eight eligible entities: Location, Store, Distribution Center, Product, Refrigeration Unit, Shipment, Inventory and Supplier. This excludes both product subtypes as well as Sale and Refrigeration Telemetry.</p>
 <blockquote>
 <p><strong>Note: </strong>Currently, only delta tables from lakehouses or mirrored databases are supported data sources for the graph view.</p>
 </blockquote>
 </li>
-<figure><img alt="Current graph configuration showing Frozen Product without a primary key." src="./Images/ontology-live-graph-eligibility.png"/><figcaption>Verified learner run: eight eligible entities. Frozen Product and Perishable Product are ineligible because the inherited-key operation fails. Do not label this as the expected ten-entity graph.</figcaption></figure><li><p>On the <strong>Projection Summary</strong> page, you see 10 entities. Select <strong>Materialize</strong>. Creating the graph model might take several minutes.</p>
+<figure><img alt="Current graph configuration showing Frozen Product without a primary key." src="./Images/ontology-live-graph-eligibility.png"/><figcaption>Verified learner run: eight eligible entities. Frozen Product and Perishable Product are ineligible because the inherited-key operation fails. Do not label this as the expected ten-entity graph.</figcaption></figure><li><p>On <strong>Projection summary</strong>, confirm the entity count before selecting <strong>Materialize</strong>: ten for the intended full projection, or eight for the approved reduced projection. The verified reduced run showed exactly eight. Creating the graph model and loading its data can take several minutes; the new graph artifact appearing is not proof that its data load has finished.</p>
 <p><span class="mx-imgBorder">
 <img alt="Screenshot of selecting to materialize the graph." src="./Images/iq-new-3-materialize-graph.png"/>
 </span>
@@ -907,7 +907,7 @@
 <li><p>When the graph finishes provisioning, return to the home canvas view. What opens automatically when the graph is done provisioning?</p>
 </li>
 </ol>
-<h4 id="part-4-explore-the-graph">Explore the graph</h4><blockquote><p><strong>Verification boundary:</strong> The graph exploration steps and reference screenshots below are the intended tutorial path. They were not executable in the learner run because graph projection was blocked by the inherited-key error. Check their controls against your live UI after the full projection is available; do not treat these steps as a completed learner checkpoint.</p></blockquote>
+<figure><img alt="Actual projection summary showing eight approved entities." src="./Images/ontology-live-eight-projection.png"/><figcaption>Approved reduced learner projection: eight entities. Keep subtype exclusions explicit.</figcaption></figure><h4 id="part-4-explore-the-graph">Explore the graph</h4><blockquote><p><strong>Verification boundary:</strong> The graph exploration steps and reference screenshots below are the intended tutorial path. They were not executable in the learner run because graph projection was blocked by the inherited-key error. Check their controls against your live UI after the full projection is available; do not treat these steps as a completed learner checkpoint.</p></blockquote>
 <ol>
 <li><p>From the top ribbon, select <strong>Explore graph</strong>. This button is visible now that the graph is materialized.</p>
 <p><span class="mx-imgBorder">
