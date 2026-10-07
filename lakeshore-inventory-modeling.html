@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Assignment 3: Model and transform Lakeshore inventory | fabric-labs</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<meta content="Build and verify a Lakeshore inventory star schema, practice SCD patterns, and transform the same snapshot with Dataflow Gen2." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<body data-spy="scroll" data-target="#linksMenu">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+<div class="container d-flex justify-content-between">
+<span class="my-1 title text-black">fabric-labs</span>
+<span class="ml-2">
+<a class="d-flex align-items-center" href="https://ismayilsiyad.github.io/fabric-labs/">
+<svg class="bi bi-house-door-fill" fill="currentColor" height="16" viewbox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"></path>
+</svg>
+                     Home
+                </a>
+</span>
+</div>
+</nav>
+<hr color-"gray"=""/>
+<div class="container">
+<main class="row extra-padding">
+<aside class="col-sm-2">
+<nav class="toc sticky-top" id="linksMenu">
+<ul class="nav navbar-nav flex-column">
+<li class="nav-item"><a class="nav-link" href="#a3-design">Part 1: Define the grain and star</a></li><li class="nav-item"><a class="nav-link" href="#a3-warehouse">Part 2: Build the warehouse and key metadata</a></li><li class="nav-item"><a class="nav-link" href="#a3-check">Part 3: Validate the facts and dimension joins</a></li><li class="nav-item"><a class="nav-link" href="#a3-scd">Part 4: Practice slowly changing dimensions safely</a></li><li class="nav-item"><a class="nav-link" href="#a3-dataflow">Part 5: Prepare inventory with Dataflow Gen2</a></li><li class="nav-item"><a class="nav-link" href="#a3-output">Part 6: Reconcile the saved output</a></li><li class="nav-item"><a class="nav-link" href="#a3-submit">Part 7: Submit and continue</a></li></ul>
+</nav>
+</aside>
+<hr class=""/>
+<article class="col-sm-10 mb-5"><h1>Assignment 3: Model and transform Lakeshore inventory</h1><p><a href="lakeshore-mysql-foundations.html">Assignment 1: MySQL</a> · <a href="lakeshore-onelake-foundations.html">Assignment 2: OneLake</a> · Assignment 3: Inventory · Assignment 4: Semantic lifecycle (forthcoming) · <a href="build-retail-ontology.html">Assignment 5: Ontology</a></p>
+<p>Lakeshore's stock analysts need a repeatable preparation layer and a dimensional model that answers how many units are available by store and storage class. In Assignment 2 you loaded the operational CSVs into OneLake. Now you will build a warehouse star schema, test dimension change patterns and prepare a separate analytics table with Dataflow Gen2. Both paths use the same Lakeshore inventory snapshot, not a different sales dataset.</p>
+<p>This combines Assignment 4a (dimensional modeling) and Assignment 4b (dataflows). Keep your results for Assignment 4's semantic-model validation and Assignment 5's ontology. Allow 90–120 minutes. The screenshots are from a real reference run on October 7, 2026; submit your own evidence.</p>
+<h2 id="a3-design">Part 1: Define the grain and star</h2>
+<p>Use the unique Fabric workspace you created in Assignment 2 on the instructor-specified capacity. You need permission to create a Warehouse and Dataflow Gen2. If either is unavailable, ask your instructor; do not buy capacity or change tenant settings.</p>
+<ol><li>Verify <code>LakeshoreStaticDataLH</code> has 9 locations, 8 products and 48 inventory positions with named columns.</li><li>Check the snapshot dates before modeling. This fixed file has one snapshot date: <code>2026-08-28</code>. It is not current inventory.</li><li>Write the fact grain: one StoreId + ProductId + SnapshotDateTime. The model's date grain is daily because this fixed sample has one snapshot per store/product per day. For multiple snapshots per day, extend the key before using this design.</li><li>Draw DimStoreModel → FactInventorySnapshot ← DimProductModel, with DimDateModel → FactInventorySnapshot. Each dimension filters many fact rows. These are single-direction many-to-one relationships in the later semantic model.</li></ol>
+<table><thead><tr><th>Model table</th><th>Key</th><th>Expected rows</th><th>Meaning</th></tr></thead><tbody><tr><td>DimStoreModel</td><td>StoreKey</td><td>6</td><td>Stores only, not distribution centers</td></tr><tr><td>DimProductModel</td><td>ProductKey</td><td>8</td><td>Product and storage context</td></tr><tr><td>DimDateModel</td><td>DateKey</td><td>1</td><td>August 28, 2026</td></tr><tr><td>FactInventorySnapshot</td><td>StoreKey + ProductKey + DateKey</td><td>48</td><td>Snapshot quantities, preserving source IDs/time</td></tr></tbody></table>
+<p>On-hand units can be summed across stores and products for one snapshot, but not across snapshot dates. They are semi-additive. Do not call these units sales, revenue or shipment quantity. StandardUnitCost is a cost attribute, not a sale price.</p>
+<h2 id="a3-warehouse">Part 2: Build the warehouse and key metadata</h2>
+<ol><li>In your progression workspace select + New item &gt; Warehouse. Name it <code>LakeshoreInventoryDW</code>. Use a new item; do not reuse or overwrite an earlier warehouse.</li><li>Select New SQL query and download <a download="" href="data/ontology/new-experience/lakeshore-inventory-star.sql">the Lakeshore warehouse script</a>. Run one statement at a time in the Warehouse, not the read-only lakehouse SQL endpoint. Check that the complete statement is in the editor before Run.</li><li>The first CTAS statements create DimStore, DimProduct and DimDate staging dimensions from the Assignment 2 lakehouse. Use the three-part source name and adapt the lakehouse name only if yours differs.</li><li>Create the explicit-schema Model dimensions and insert the staging rows. Their integer keys are NOT NULL. Then create FactInventorySnapshot with source fields and surrogate keys. The constant 20260828 is valid only after verifying this fixed sample's one date.</li><li>Add the three primary-key and three foreign-key metadata constraints. Run the catalog query and confirm all six appear.</li></ol>
+<p><strong>Tested recovery:</strong> The first CTAS keys were nullable, so PRIMARY KEY failed. ALTER COLUMN NOT NULL was not a working fix in this environment. The tested solution was new explicit-schema Model dimensions with NOT NULL keys, followed by INSERT. Keep staging tables for review. Use only the Model dimensions in the semantic model.</p>
+<p>Fabric's constraints here are NOT ENFORCED. They describe intent; they do not reject orphan or duplicate rows. Your ETL and quality checks must enforce that intent. Deterministic ROW_NUMBER keys are sufficient for this immutable exercise, not a production incremental surrogate-key generator.</p><figure><img alt="Actual warehouse catalog: three primary keys and three foreign keys on the model tables." src="Images/lakeshore-progression/a3-constraints.png"/><figcaption>Actual warehouse catalog: three primary keys and three foreign keys on the model tables.</figcaption></figure><h2 id="a3-check">Part 3: Validate the facts and dimension joins</h2>
+<ol><li>Run the fact count and unit total query: 48 positions and 1,738 on-hand units.</li><li>Join FactInventorySnapshot to DimProductModel and group by StorageClass. Expect FROZEN 18/597, PERISHABLE 12/436 and AMBIENT 18/705 (positions/units).</li><li>Run the duplicate group query at StoreKey + ProductKey + DateKey. Expect 0 groups.</li><li>Run orphan checks for each of ProductKey, StoreKey and DateKey. Each must be 0. Metadata alone does not prove integrity.</li><li>Explain why a missing dimension row can silently remove a position from an inner-join report. Compare the joined total with the raw total.</li></ol><figure><img alt="Actual warehouse fact check: 48 positions and 1,738 on-hand units." src="Images/lakeshore-progression/a3-warehouse-total.png"/><figcaption>Actual warehouse fact check: 48 positions and 1,738 on-hand units.</figcaption></figure><figure><img alt="Actual star join: 597 frozen, 436 perishable and 705 ambient units." src="Images/lakeshore-progression/a3-warehouse-storage.png"/><figcaption>Actual star join: 597 frozen, 436 perishable and 705 ambient units.</figcaption></figure><figure><img alt="Actual duplicate fact-grain check: 0 groups." src="Images/lakeshore-progression/a3-grain.png"/><figcaption>Actual duplicate fact-grain check: 0 groups.</figcaption></figure><figure><img alt="Actual store orphan check zero" src="Images/lakeshore-progression/a3-store-orphans.png"/><figcaption>Actual store-key orphan check: 0. Product and date checks also returned 0.</figcaption></figure><h2 id="a3-scd">Part 4: Practice slowly changing dimensions safely</h2>
+<p>Use only <code>DimStoreSCDPractice</code>. These are simulated changes, not new source facts. Do not change DimStoreModel or reassign the August 28 facts.</p>
+<ol><li>Create the practice copy with ValidFrom, ValidTo and IsCurrent fields using the script.</li><li>Type 1: correct StoreName for StoreKey 1 by appending “ - corrected”. Query before/after. Explain that this overwrites the attribute rather than retaining its prior value.</li><li>Type 2: expire StoreKey 1 on August 28 and insert the same StoreId as new StoreKey 101, PriorityTier Tier 2, effective August 29. The inclusive date ranges do not overlap.</li><li>Query both versions. Explain why the original snapshot still refers to the August 28 key and why a later snapshot would need to resolve the key as of its own date.</li><li>Describe production safeguards: one current row per business key, nonoverlapping validity intervals, stable key allocation, and atomic expire/insert processing.</li></ol><figure><img alt="Actual SCD practice: old StoreKey 1 expired August 28; new StoreKey 101 current from August 29." src="Images/lakeshore-progression/a3-scd.png"/><figcaption>Actual SCD practice: old StoreKey 1 expired August 28; new StoreKey 101 current from August 29.</figcaption></figure><h2 id="a3-dataflow">Part 5: Prepare inventory with Dataflow Gen2</h2>
+<p>This second path creates a separate analytics table. It does not replace the warehouse fact or mutate the source tables. CSV is a file source: do not claim these steps were folded to a database.</p>
+<ol><li>Open LakeshoreAnalyticsLH from Assignment 2. Select Get data &gt; New Dataflow Gen2. Name it <code>LakeshoreInventoryPrep</code>. Its default destination is this analytics lakehouse.</li><li>Select Import from a Text/CSV file &gt; Link to file. Enter <code>https://ismayilsiyad.github.io/fabric-labs/data/ontology/new-experience/fact_inventory_positions.csv</code>. Use a new connection named LakeshoreInventoryCSV, no gateway and Anonymous authentication. Select Next.</li><li>Confirm the preview has 48 rows and 11 named columns, then Create. Rename the query in Query settings to <code>inventory_prepared</code>. This unique output name protects the original inventory table.</li><li>Confirm the inferred Changed column type step: IDs text; snapshot/delivery datetime; quantities and status whole numbers.</li><li>Select Add column &gt; Custom column. Name it ShelfFillPct and use the expression below. This handles zero capacity and rounds to one decimal place. Select OK.</li></ol>
+<pre><code>if [ShelfCapacityUnits] = 0 then null else
+    Number.Round(100 * [ShelfAvailableUnits] / [ShelfCapacityUnits], 1)</code></pre><figure><img alt="Actual Dataflow Gen2 CSV source preview: 48 rows and 11 named columns." src="Images/lakeshore-progression/a3-dataflow-source.png"/><figcaption>Actual Dataflow Gen2 CSV source preview: 48 rows and 11 named columns.</figcaption></figure><ol start="6"><li>Home &gt; Choose columns: deselect NextDeliveryDateTime; keep the remaining source columns and ShelfFillPct.</li><li>Select OnHandQuantity, then Home &gt; Filter rows. Use is greater than or equal to 0. In this fixed sample all 48 rows remain. Do not use greater than 0, since zero stock is meaningful.</li><li>Set ShelfFillPct to Decimal number and rename OnHandQuantity to OnHandUnits. You may use the formula-bar expression below for the final step, referencing the tested Choose columns step.</li><li>Confirm the destination is LakeshoreAnalyticsLH and the new table is inventory_prepared. Keep automatic destination settings for this new practice output. Do not select a pre-existing table.</li><li>Select Home &gt; Save &amp; run. Run started is not success. Open Recent runs and wait for Succeeded; capture the status. If a run fails, inspect its details before changing the query.</li></ol>
+<pre><code>Table.RenameColumns(
+    Table.TransformColumnTypes(
+        Table.SelectRows(#"Choose columns", each [OnHandQuantity] &gt;= 0),
+        {{"ShelfFillPct", type number}}),
+    {{"OnHandQuantity", "OnHandUnits"}})</code></pre><figure><img alt="Actual prepared query: 48 rows, 11 columns, decimal ShelfFillPct, and transformation steps." src="Images/lakeshore-progression/a3-dataflow-transform.png"/><figcaption>Actual prepared query: 48 rows, 11 columns, decimal ShelfFillPct, and transformation steps.</figcaption></figure><figure><img alt="Actual successful Dataflow runs" src="Images/lakeshore-progression/a3-dataflow-success.png"/><figcaption>Actual Recent runs: both on-demand runs succeeded. Final run includes the renamed and typed output.</figcaption></figure><h2 id="a3-output">Part 6: Reconcile the saved output</h2>
+<p>Open the analytics lakehouse table or query its SQL endpoint. In the reference run, the warehouse could also query the analytics lakehouse with its three-part name. Wait for endpoint synchronization if the new table is not yet visible.</p>
+<pre><code>SELECT COUNT(*) AS Positions, SUM(OnHandUnits) AS Units,
+       MIN(ShelfFillPct) AS MinShelfFill
+FROM LakeshoreAnalyticsLH.dbo.inventory_prepared;</code></pre>
+<p>Expect 48 positions, 1,738 units and minimum shelf fill 33.3%. Low shelf-fill examples are 40%, 33.3% and 38.9%; the other sample positions are full. Shelf-fill percentage is a per-position ratio, not an additive unit measure.</p><figure><img alt="Actual saved analytics output: 48 positions, 1,738 renamed OnHandUnits and minimum shelf fill 33.3%." src="Images/lakeshore-progression/a3-dataflow-output.png"/><figcaption>Actual saved analytics output: 48 positions, 1,738 renamed OnHandUnits and minimum shelf fill 33.3%.</figcaption></figure><h2 id="a3-submit">Part 7: Submit and continue</h2>
+<ol><li>Submit your grain statement, star diagram, SQL script and dimension/fact counts.</li><li>Submit the six constraint entries, joined totals, duplicate and all three orphan results.</li><li>Submit Type 1 before/after evidence and the two Type 2 versions, explaining which key a later fact would use.</li><li>Submit the Power Query steps, successful run, destination table and reconciled totals.</li><li>Keep the source lakehouse, warehouse, analytics lakehouse and Dataflow for Assignment 4. Do not delete workspaces or source resources.</li></ol>
+<h3>Sources and tested scope</h3>
+<p>Adapted from <a href="https://microsoftlearning.github.io/mslearn-fabric/Instructions/Labs/26-design-dimensional-models.html">Design dimensional models</a> and <a href="https://microsoftlearning.github.io/mslearn-fabric/Instructions/Labs/26b-transform-data-dataflows.html">Transform data using dataflows</a>. Actual reference run: warehouse creation, staging/explicit-schema dimensions, fact load, six constraints, join/grain/orphan checks, separate SCD practice, anonymous canonical CSV import, custom calculation, selection/filter/type/rename, successful Dataflow runs and output reconciliation. Source operational records are retained. The next assignment validates semantic filtering and deployment; SQL key metadata does not itself establish semantic-model relationships.</p></article>
+</main>
+</div>
+<footer class="fixed-bottom d-print-none">
+<nav class="navbar navbar-light bg-light d-flex justify-content-around">
+<span class="navbar-text">
+                © 2026 Microsoft  | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a> | 
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a> | 
+                <i aria-hidden="true" class="fa fa-github"></i>
+<a class="ml-2" href="https://github.com/ismayilsiyad/fabric-labs" target="_blank">
+                    Source
+                </a>
+</span>
+</nav>
+</footer>
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
