@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Assignment 4: Validate and deploy the Lakeshore semantic model | fabric-labs</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<meta content="Validate Lakeshore inventory with SemPy, repair semantic filtering with TOM, and promote the model from Development to Test." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<body data-spy="scroll" data-target="#linksMenu">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+<div class="container d-flex justify-content-between">
+<span class="my-1 title text-black">fabric-labs</span>
+<span class="ml-2">
+<a class="d-flex align-items-center" href="https://ismayilsiyad.github.io/fabric-labs/">
+<svg class="bi bi-house-door-fill" fill="currentColor" height="16" viewbox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"></path>
+</svg>
+                     Home
+                </a>
+</span>
+</div>
+</nav>
+<hr color-"gray"=""/>
+<div class="container">
+<main class="row extra-padding">
+<aside class="col-sm-2">
+<nav class="toc sticky-top" id="linksMenu">
+<ul class="nav navbar-nav flex-column"></ul>
+</nav>
+</aside>
+<hr class=""/>
+<article class="col-sm-10 mb-5"><h1>Assignment 4: Validate and deploy the Lakeshore semantic model</h1><p class="progression-nav"><a href="lakeshore-mysql-foundations.html">Assignment 1: MySQL</a> · <a href="lakeshore-onelake-foundations.html">Assignment 2: OneLake</a> · <a href="lakeshore-inventory-modeling.html">Assignment 3: Inventory</a> · Assignment 4: Semantic lifecycle · <a href="build-retail-ontology.html">Assignment 5: Ontology</a></p>
+<p>Lakeshore's stock analysts must trust a storage-class inventory report before it reaches other teams. Assignment 3 proved that the warehouse joins are correct. This assignment tests a different layer: whether the semantic model's filter context follows the intended relationships. You will inspect the model with SemPy, diagnose repeated DAX totals, add the missing relationships through TOM and promote the validated model to a Test stage.</p>
+<p>This adapts uploaded Assignment-05's Validate → Fix → Deploy workflow to the same eight Lakeshore files. Do not generate the original lab's bicycle sales, customers or random data. Use the Lakeshore static data and the four model tables retained from Assignment 3. Allow 60–90 minutes. Screenshots show a real reference run on October 7, 2026, including recoveries; submit your own results.</p>
+<h2 id="a4-environment">Part 1: Check access and create the inventory model</h2>
+<p>Use your unique Assignment 2 progression workspace on the instructor-specified capacity. Keep the lakehouses, warehouse and Dataflow from Assignment 3. You need permission to create and edit a semantic model, run a Fabric notebook and create a deployment pipeline. XMLA read/write and appropriate capacity/licensing must be available for the TOM write cell.</p>
+<blockquote><p><strong>Administrator-only setup:</strong> If XMLA writes, notebooks or deployment pipelines are unavailable, ask your instructor or administrator to check capacity, permissions and tenant settings. Do not purchase capacity or change tenant-wide settings. A learner without deployment access completes Parts 1–5 and submits evidence plus the access error for Part 6; the instructor demonstrates promotion using the reference screenshots.</p></blockquote>
+<ol><li>Open <code>LakeshoreInventoryDW</code>. Select <strong>New semantic model</strong>. Name it <code>LakeshoreInventorySemanticDev</code>, and place it in your progression workspace.</li><li>Select only <code>FactInventorySnapshot</code>, <code>DimProductModel</code>, <code>DimStoreModel</code> and <code>DimDateModel</code>. Exclude the staging dimensions and <code>DimStoreSCDPractice</code>. This model is not the one-table LakeshoreCatalogExplore model from Assignment 2.</li><li>Open the model and inspect its relationships before making changes. The reference model initially had none. If your environment creates the correct relationships automatically, capture that working baseline and do not delete them to force an error. Skip the write cell if nothing is missing.</li><li>Record the model/workspace names and expected daily grain: StoreKey + ProductKey + DateKey, 48 positions, 1,738 units for August 28, 2026. On-hand quantity is inventory, not sales or revenue.</li></ol>
+<h2 id="a4-metadata">Part 2: Inspect metadata with SemPy</h2>
+<ol><li>Download <a download="" href="data/ontology/new-experience/lakeshore-semantic-lifecycle.ipynb">the Lakeshore semantic lifecycle notebook</a>. In your workspace select Import &gt; Notebook &gt; Upload. Name it <code>LakeshoreSemanticValidation</code>.</li><li>Open it, select PySpark (Python) and the workspace default environment. It reads the semantic model directly; an attached lakehouse is not required for these cells.</li><li>Change WORKSPACE to your unique workspace name and MODEL to your semantic-model name. Run each code cell separately using its play button. Do not use Run all: the write cell must follow inspection, and a before/after comparison depends on order.</li><li>Run the metadata cell below. Confirm exactly four model tables and inspect key data types. If the model is not found, check names, workspace access and model readiness before changing code.</li></ol><pre><code class="language-python">import sempy.fabric as fabric
+WORKSPACE = "LakeshoreProgressionDev"
+MODEL = "LakeshoreInventorySemanticDev"
+display(fabric.list_tables(MODEL, workspace=WORKSPACE))
+display(fabric.list_columns(MODEL, workspace=WORKSPACE))
+</code></pre><figure><img alt="Actual metadata cell completed successfully and returned four model tables. An earlier typing-error cell is retained above it for review." src="Images/lakeshore-progression/a4-metadata.png"/><figcaption>Actual metadata cell completed successfully and returned four model tables. An earlier typing-error cell is retained above it for review.</figcaption></figure><h2 id="a4-quality">Part 3: Check grain, integrity and relationship candidates</h2>
+<ol><li>Run the read/quality cell. Confirm 48 fact rows, 1,738 on-hand units and 0 duplicate daily-grain rows.</li><li>Check ProductKey, StoreKey and DateKey separately. Each should have 0 nulls and 0 keys absent from its dimension. Check dimension keys are unique before configuring many-to-one relationships.</li><li>Run relationship discovery and the violation check. Treat these as suggestions, not a model design or an automatic repair.</li><li>The reference run found five candidates, including both ProductKey/ProductId and StoreKey/StoreId pairs. Choose the three surrogate-key relationships specified by the Assignment 3 star. Do not create all five or parallel filter paths.</li><li>Explain why data quality can pass while a report is still wrong: valid keys do not establish semantic filter propagation. Fabric's SQL key metadata is not a substitute for inspecting this model.</li></ol><pre><code class="language-python">fact = fabric.read_table(MODEL, "FactInventorySnapshot", workspace=WORKSPACE)
+product = fabric.read_table(MODEL, "DimProductModel", workspace=WORKSPACE)
+store = fabric.read_table(MODEL, "DimStoreModel", workspace=WORKSPACE)
+dates = fabric.read_table(MODEL, "DimDateModel", workspace=WORKSPACE)
+print("Rows", len(fact), "Units", fact.OnHandQuantity.sum())
+print("Duplicate grain", fact.duplicated(["StoreKey", "ProductKey", "DateKey"]).sum())
+for key, dim in [("ProductKey",product),("StoreKey",store),("DateKey",dates)]:
+    print(key, "null", fact[key].isna().sum(), "orphans", (~fact[key].isin(dim[key])).sum())
+</code></pre><figure><img alt="Actual quality results: 48 rows, 1,738 units, 0 duplicate grain rows, and 0 null/orphan values for all three keys." src="Images/lakeshore-progression/a4-quality.png"/><figcaption>Actual quality results: 48 rows, 1,738 units, 0 duplicate grain rows, and 0 null/orphan values for all three keys.</figcaption></figure><pre><code class="language-python">from sempy.relationships import find_relationships, list_relationship_violations
+frames = [fact, product, store, dates]
+relationships = find_relationships(frames)
+display(relationships)
+display(list_relationship_violations(frames, relationships))
+</code></pre><figure><img alt="Actual SemPy output contains five relationship candidates. Business design selects only ProductKey, StoreKey and DateKey paths." src="Images/lakeshore-progression/a4-discovery.png"/><figcaption>Actual SemPy output contains five relationship candidates. Business design selects only ProductKey, StoreKey and DateKey paths.</figcaption></figure><h2 id="a4-dax">Part 4: Prove the filter-context problem</h2>
+<p>Run the same DAX query before and after the relationship change. Do not replace it with a different aggregation to hide the problem.</p><pre><code class="language-python">dax = """EVALUATE SUMMARIZECOLUMNS('DimProductModel'[StorageClass], "Positions", COUNTROWS('FactInventorySnapshot'), "OnHandUnits", SUM('FactInventorySnapshot'[OnHandQuantity])) ORDER BY 'DimProductModel'[StorageClass]"""
+display(fabric.evaluate_dax(MODEL, dax, workspace=WORKSPACE))
+</code></pre>
+<p>In the disconnected reference model, every storage class showed 48 positions and 1,738 units. Those are the grand totals repeated, not three correct subtotals. The product dimension did not filter the inventory fact. Compare with Assignment 3's SQL joins to isolate the semantic-layer problem.</p><figure><img alt="Actual model DAX query before repair: FROZEN, PERISHABLE and AMBIENT each incorrectly repeat 48 positions and 1,738 units." src="Images/lakeshore-progression/a4-dax-before.png"/><figcaption>Actual model DAX query before repair: FROZEN, PERISHABLE and AMBIENT each incorrectly repeat 48 positions and 1,738 units.</figcaption></figure>
+<p>If your baseline already shows 18/597, 12/436 and 18/705, record that the model is already related. Inspect its cardinalities and filter direction and proceed to validation/deployment without adding duplicate relationships.</p>
+<h2 id="a4-fix">Part 5: Add the missing relationships and verify</h2>
+<p>Only run this write cell on your own practice model, after confirming the three intended relationships are missing. It skips names already present, but that does not detect equivalent relationships with different names: inspect the model first. Do not run it against an unrelated or production model.</p>
+<div class="lab-table-scroll"><table><thead><tr><th>Fact column</th><th>Dimension column</th><th>Configuration</th></tr></thead><tbody><tr><td>FactInventorySnapshot.ProductKey</td><td>DimProductModel.ProductKey</td><td>Many → one, active</td></tr><tr><td>FactInventorySnapshot.StoreKey</td><td>DimStoreModel.StoreKey</td><td>Many → one, active</td></tr><tr><td>FactInventorySnapshot.DateKey</td><td>DimDateModel.DateKey</td><td>Many → one, active</td></tr></tbody></table></div>
+<p>Use single-direction filtering from each dimension to the fact. The TOM connection saves changes when its context exits.</p><pre><code class="language-python">import Microsoft.AnalysisServices.Tabular as TOM
+with fabric.connect_semantic_model(MODEL, workspace=WORKSPACE, readonly=False) as tom:
+    for key, target in [("ProductKey","DimProductModel"),("StoreKey","DimStoreModel"),("DateKey","DimDateModel")]:
+        name = "Inventory_to_" + target
+        if tom.model.Relationships.Find(name) is not None:
+            print("Already present", name)
+            continue
+        rel = TOM.SingleColumnRelationship()
+        rel.Name = name
+        rel.FromColumn = tom.model.Tables["FactInventorySnapshot"].Columns[key]
+        rel.ToColumn = tom.model.Tables[target].Columns[key]
+        rel.FromCardinality = TOM.RelationshipEndCardinality.Many
+        rel.ToCardinality = TOM.RelationshipEndCardinality.One
+        rel.CrossFilteringBehavior = TOM.CrossFilteringBehavior.OneDirection
+        rel.IsActive = True
+        tom.model.Relationships.Add(rel)
+print("Three intended relationships configured")
+</code></pre><figure><img alt="Actual TOM write completed and logged all three intended Inventory_to_Dim... relationships." src="Images/lakeshore-progression/a4-tom.png"/><figcaption>Actual TOM write completed and logged all three intended Inventory_to_Dim... relationships.</figcaption></figure><pre><code class="language-python">fabric.refresh_dataset(MODEL, workspace=WORKSPACE)
+display(fabric.evaluate_dax(MODEL, dax, workspace=WORKSPACE))
+</code></pre>
+<p><strong>Tested recovery:</strong> The first refresh/query attempt reported that a relationship needed recalculation. After refresh completed, rerunning the validation cell returned the correct results. Refresh requested is not proof of completed validation. Wait, read the error and rerun only the affected validation cell, not the full notebook or the write cell. Earlier syntax/indentation attempts were preserved separately in the reference notebook.</p>
+<div class="lab-table-scroll"><table><thead><tr><th>StorageClass</th><th>Positions</th><th>OnHandUnits</th></tr></thead><tbody><tr><td>AMBIENT</td><td>18</td><td>705</td></tr><tr><td>FROZEN</td><td>18</td><td>597</td></tr><tr><td>PERISHABLE</td><td>12</td><td>436</td></tr><tr><td>Total</td><td>48</td><td>1,738</td></tr></tbody></table></div><figure><img alt="Actual successful post-refresh DAX output now splits the inventory by storage class. Compare with the complete expected table above." src="Images/lakeshore-progression/a4-dax-after.png"/><figcaption>Actual successful post-refresh DAX output now splits the inventory by storage class. Compare with the complete expected table above.</figcaption></figure>
+<p>Reopen the semantic model in Model view. Inspect the lines and relationship details: three active many-to-one paths with a single filter direction. Capture your diagram and the full DAX output. The screenshot below is a partial model viewport, not proof that every relationship detail fits on screen.</p><figure><img alt="Actual post-repair model view shows the product-to-inventory relationship and retained model tables." src="Images/lakeshore-progression/a4-model.png"/><figcaption>Actual post-repair model view shows the product-to-inventory relationship and retained model tables.</figcaption></figure>
+<h2 id="a4-deploy">Part 6: Promote the validated model to Test</h2>
+<p>This is a practice release gate, not a production rollout. Deployment copies model content; it does not prove that target data connections, permissions, refresh or report access work. The reference run promoted only the semantic model, not the warehouse, lakehouses, Dataflow or notebook. Test-model data validation is a separate next check; do not claim an independent production data platform was created.</p>
+<ol><li>Open <strong>Deployment pipelines</strong> from Fabric's left navigation and create a pipeline named <code>LakeshoreInventoryLifecycle-yourname</code>. Keep Development, Test and Production stages.</li><li>Assign your unique progression workspace to Development. Review the workspace name before assigning it. Leave existing unrelated workspaces untouched.</li><li>Select the <strong>Test</strong> stage. The item panel should say Test and <strong>Deploy from Development</strong>. Selecting Development instead shows the opposite direction and can leave Deploy disabled.</li><li>Expand the item-list area using the canvas/list toggle if needed. Hover the LakeshoreInventorySemanticDev row to reveal its selection box. Select only that model, not Select all.</li><li>Select Deploy. Review the dialog: Development → Test, one new semantic model. In the tested UI, deployment to an empty Test stage automatically created <code>LakeshoreProgressionDev [Test]</code>. If your environment requires a target workspace first, create a uniquely named Test workspace using the instructor-specified capacity and assign it to Test before continuing.</li><li>Confirm deployment and wait for completion. Capture <strong>Successful deployment</strong>, the target workspace and the model's <strong>Same as source</strong> comparison. If it fails, inspect Deployment history and submit the reason; a started deployment is not success.</li><li>Open the target model. Check its source bindings and access, then run the same totals before treating Test as usable. Since only the model was copied, do not assume the warehouse data was copied or connections were rebound. Record any target validation still outstanding.</li><li>Leave Production unassigned for this exercise. Promotion to a real production audience needs its own release review, source/target validation and owner approval; it is not an optional shortcut in this lab.</li></ol><figure><img alt="Actual pipeline setup: the progression workspace is assigned to Development; Test and Production initially have no workspace." src="Images/lakeshore-progression/a4-pipeline.png"/><figcaption>Actual pipeline setup: the progression workspace is assigned to Development; Test and Production initially have no workspace.</figcaption></figure><figure><img alt="Actual Development-to-Test deployment succeeded at 7:37 PM. Fabric created the Test workspace; Production remains unassigned." src="Images/lakeshore-progression/a4-deployed.png"/><figcaption>Actual Development-to-Test deployment succeeded at 7:37 PM. Fabric created the Test workspace; Production remains unassigned.</figcaption></figure>
+<h2 id="a4-submit">Part 7: Submit the release evidence and continue</h2>
+<ol><li>Submit the notebook, model/workspace names and metadata screenshot.</li><li>Submit grain/null/orphan checks, discovered candidates and your explanation for choosing only three surrogate-key paths.</li><li>Submit identical DAX before/after queries, full outputs, model relationship evidence and reconciliation to Assignment 3.</li><li>Submit the pipeline stage map, selected-item dialog or deployment history, target model comparison and target-connection validation status. Explain why deployment success alone is not a data-quality gate.</li><li>Keep all progression resources and failed-attempt evidence for review. Do not delete workspaces. Continue to <a href="build-retail-ontology.html">Assignment 5: Build the Lakeshore ontology</a>, using the original operational tables for entities and this validated star as an analytical reference. An ontology is not simply the warehouse star with renamed boxes.</li></ol>
+<h3>Sources and tested scope</h3>
+<p>Adapted from <a href="https://microsoftlearning.github.io/mslearn-fabric/Instructions/Labs/21b-manage-semantic-model-lifecycle.html">Manage the semantic model lifecycle</a>. The original generated bicycle/customer/sales dataset is replaced by the Assignment 3 inventory star. Actual reference run: four-table model, SemPy metadata and data reads, grain/null/orphan checks, relationship discovery, repeated DAX grand totals, three TOM relationship writes, refresh recovery, corrected DAX totals, model-view inspection, pipeline setup and successful semantic-model-only promotion to Test. Production deployment, target refresh and end-to-end target data validation are not claimed.</p></article>
+</main>
+</div>
+<footer class="fixed-bottom d-print-none">
+<nav class="navbar navbar-light bg-light d-flex justify-content-around">
+<span class="navbar-text">
+                © 2026 Microsoft  | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a> | 
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a> | 
+                <i aria-hidden="true" class="fa fa-github"></i>
+<a class="ml-2" href="https://github.com/ismayilsiyad/fabric-labs" target="_blank">
+                    Source
+                </a>
+</span>
+</nav>
+</footer>
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
