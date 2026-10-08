@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Task 2: Lakeshore returns in the semantic model and ontology | fabric-labs</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<meta content="Add returns to the Lakeshore semantic model and ontology and find the stores with a returns problem." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<body data-spy="scroll" data-target="#linksMenu">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+<div class="container d-flex justify-content-between">
+<span class="my-1 title text-black">fabric-labs</span>
+<span class="ml-2">
+<a class="d-flex align-items-center" href="https://ismayilsiyad.github.io/fabric-labs/">
+<svg class="bi bi-house-door-fill" fill="currentColor" height="16" viewbox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"></path>
+</svg>
+                     Home
+                </a>
+</span>
+</div>
+</nav>
+<hr color-"gray"=""/>
+<div class="container">
+<main class="row extra-padding">
+<aside class="col-sm-2">
+<nav class="toc sticky-top" id="linksMenu">
+<ul class="nav navbar-nav flex-column"></ul>
+</nav>
+</aside>
+<hr class=""/>
+<article class="col-sm-10 mb-5"><h1>Task 2: Lakeshore returns in the semantic model and ontology</h1><p class="progression-nav"><a href="lakeshore-mysql-foundations.html">Assignment 1: MySQL</a> · <a href="lakeshore-onelake-foundations.html">Assignment 2: OneLake</a> · <a href="lakeshore-inventory-modeling.html">Assignment 3: Inventory</a> · <a href="lakeshore-semantic-lifecycle.html">Assignment 4: Semantic lifecycle</a> · <a href="build-retail-ontology.html">Assignment 5: Ontology</a> · <a href="lakeshore-returns-model.html">Task 1: Returns data</a> · Task 2: Returns in the model and ontology</p>
+<p>In Task 1 you loaded Lakeshore returns into OneLake and found the problem with SQL. In this task you make the answer reusable: you add the returns tables to the semantic model from Assignment 4, define two measures, and extend the ontology from Assignment 5 with a new <strong>Return</strong> entity type and its relationships. Then you answer "which stores have a returns problem?" from the model.</p>
+<p>You need your Task 1 warehouse tables, your <code>LakeshoreInventorySemantic</code> model from Assignment 4 and your ontology from Assignment 5. Allow 75 minutes. The screenshots are from a real run; your names will differ slightly.</p>
+<h2 id="t2-model">Part 1: Add returns to the semantic model</h2>
+<ol><li>Open your semantic model and select Edit tables. Select <code>FactReturns</code>, <code>DimReasonModel</code> and <code>FactStoreSalesWeekly</code> from <code>LakeshoreInventoryDW</code>, then confirm. The tables take a minute to appear. If the model is read-only after a reload, switch the mode to Editing.</li></ol><figure><img alt="Actual Edit tables dialog with the three returns tables selected." src="Images/lakeshore-returns/t2-add-tables.png"/><figcaption>Actual Edit tables dialog with the three returns tables selected.</figcaption></figure>
+<ol start="2"><li>Select Manage relationships &gt; New relationship. Create five many-to-one relationships, each with a single filter direction: <code>FactReturns[StoreKey]</code> to <code>DimStoreModel[StoreKey]</code>, <code>FactReturns[ProductKey]</code> to <code>DimProductModel[ProductKey]</code>, <code>FactReturns[ReasonKey]</code> to <code>DimReasonModel[ReasonKey]</code>, <code>FactStoreSalesWeekly[StoreKey]</code> to <code>DimStoreModel[StoreKey]</code> and <code>FactStoreSalesWeekly[ProductKey]</code> to <code>DimProductModel[ProductKey]</code>.</li></ol><figure><img alt="Actual Manage relationships list with the five new relationships." src="Images/lakeshore-returns/t2-relationships.png"/><figcaption>Actual Manage relationships list with the five new relationships.</figcaption></figure>
+<p>Both fact tables share the store and product dimensions. That is what lets one store row hold both units returned and units sold.</p>
+<h2 id="t2-measures">Part 2: Add two measures</h2>
+<ol><li>Select <code>FactReturns</code>, choose New measure and enter the formula in the formula bar: <code>Refund Total = SUM(FactReturns[RefundAmountUSD])</code>.</li><li>Add a second measure: <code>Return Rate = DIVIDE(SUM(FactReturns[ReturnQuantity]), SUM(FactStoreSalesWeekly[UnitsSold]))</code>.</li></ol><figure><img alt="Actual model with the Refund Total and Return Rate measures." src="Images/lakeshore-returns/t2-measures.png"/><figcaption>Actual model with the Refund Total and Return Rate measures.</figcaption></figure>
+<h2 id="t2-test">Part 3: Test the model</h2>
+<ol><li>Open the DAX query view and run this query:</li></ol>
+<pre><code>EVALUATE
+SUMMARIZECOLUMNS(
+    DimStoreModel[StoreName],
+    "Returned units", SUM(FactReturns[ReturnQuantity]),
+    "Refund Total", [Refund Total],
+    "Return Rate", [Return Rate]
+)
+ORDER BY [Return Rate] DESC</code></pre>
+<ol start="2"><li>Denver Market returns 90 units and $633.8 with a Return Rate of 0.07. The other stores are about 0.02 to 0.03.</li></ol><figure><img alt="Actual DAX result: Denver Market is the clear outlier." src="Images/lakeshore-returns/t2-dax-result.png"/><figcaption>Actual DAX result: Denver Market is the clear outlier.</figcaption></figure>
+<p>Return Rate shows as a decimal here: 0.07 means 7%. This matches the 7.37% you found in Task 1.</p>
+<blockquote><p>The Edit tables and Manage relationships screens can be slow. If an Apply from a script fails with "Semantic model out of sync", use the New relationship dialog instead, as in step 2.</p></blockquote>
+<h2 id="t2-ont">Part 4: Extend the ontology with Return</h2>
+<p>An ontology entity needs a table in a lakehouse in the same workspace as the ontology. Use the workspace that holds your ontology and its lakehouse.</p>
+<ol><li>Upload <code>fact_store_returns.csv</code> to the lakehouse Files, then load it to a table. Fabric lowercases the name, so the table is <code>storereturns</code> if you name it that way. Wait for the load to finish.</li></ol><figure><img alt="Actual Load to table dialog in the ontology lakehouse." src="Images/lakeshore-returns/t2-ont-load-table.png"/><figcaption>Actual Load to table dialog in the ontology lakehouse.</figcaption></figure><figure><img alt="Actual lakehouse table list with the returns table loaded." src="Images/lakeshore-returns/t2-ont-table-loaded.png"/><figcaption>Actual lakehouse table list with the returns table loaded.</figcaption></figure>
+<ol start="2"><li>Open your ontology. Select Add entity type, name it <code>Return</code> and create it.</li></ol><figure><img alt="Actual Add entity type dialog with the name Return." src="Images/lakeshore-returns/t2-ont-add-entity.png"/><figcaption>Actual Add entity type dialog with the name Return.</figcaption></figure>
+<ol start="3"><li>Open Return, select Manage property bindings, choose the lakehouse and the returns table, and bind it. The seven columns map to properties automatically: ReturnId, ReturnDateTime, StoreId, ProductId, ReasonCode, ReturnQuantity and RefundAmountUSD.</li></ol><figure><img alt="Actual table picker for the Return binding." src="Images/lakeshore-returns/t2-ont-pick-table.png"/><figcaption>Actual table picker for the Return binding.</figcaption></figure><figure><img alt="Actual Return properties mapped from the table." src="Images/lakeshore-returns/t2-ont-properties.png"/><figcaption>Actual Return properties mapped from the table.</figcaption></figure>
+<ol start="4"><li>Select Define entity type key, choose <code>ReturnId</code> and save. One return is one row, so ReturnId is unique.</li></ol><figure><img alt="Actual entity key dialog with ReturnId chosen." src="Images/lakeshore-returns/t2-ont-key.png"/><figcaption>Actual entity key dialog with ReturnId chosen.</figcaption></figure>
+<h2 id="t2-rel">Part 5: Add the relationships</h2>
+<ol><li>On Return, select Manage relationships &gt; Add new relationship. Name it <code>returnedAt</code>, set origin Return and target Store, and create it.</li></ol><figure><img alt="Actual Add new relationship dialog: returnedAt from Return to Store." src="Images/lakeshore-returns/t2-ont-relationship.png"/><figcaption>Actual Add new relationship dialog: returnedAt from Return to Store.</figcaption></figure>
+<ol start="2"><li>On the relationship page, map the origin property <code>StoreId</code> to the target key <code>LocationId</code> (the Store key in this ontology) and save.</li></ol><figure><img alt="Actual relationship mapping: StoreId to LocationId." src="Images/lakeshore-returns/t2-ont-rel-mapped.png"/><figcaption>Actual relationship mapping: StoreId to LocationId.</figcaption></figure>
+<ol start="3"><li>From Home select Add relationship and create <code>forProductReturn</code> from Return to Product. Open it and map <code>ProductId</code> to <code>ProductId</code>, then save.</li></ol>
+<p>The reasons table is not an entity in this ontology, so ReasonCode stays as a Return property. Add a Reason entity later if you want to browse reasons as objects.</p>
+<h2 id="t2-final">Part 6: Test the ontology and answer the question</h2>
+<ol><li>On Home, search for Return in the Explorer and select it. Return connects to Store with <code>returnedAt</code> and to Product with <code>forProductReturn</code>, next to the existing relationships.</li><li>Answer the question: <strong>Denver (S-DEN-01)</strong> has the returns problem, at about 7.4% of units sold against 2 to 3% elsewhere. Boston at 3.1% is worth a watch.</li></ol><figure><img alt="Actual ontology canvas: Return linked to Store and Product." src="Images/lakeshore-returns/t2-ont-result.png"/><figcaption>Actual ontology canvas: Return linked to Store and Product.</figcaption></figure>
+<p>We skip the ontology graph in this task. Graph materialization can fail in some tenants, and the answer comes from the semantic model.</p>
+<h2 id="t2-submit">Part 7: Submit</h2>
+<p>Submit the DAX result screenshot, the relationships screenshot and the ontology canvas screenshot, plus one sentence naming the store and its return rate.</p>
+</main>
+</div>
+<footer class="fixed-bottom d-print-none">
+<nav class="navbar navbar-light bg-light d-flex justify-content-around">
+<span class="navbar-text">
+                © 2026 Microsoft  | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a> | 
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a> | 
+                <i aria-hidden="true" class="fa fa-github"></i>
+<a class="ml-2" href="https://github.com/ismayilsiyad/fabric-labs" target="_blank">
+                    Source
+                </a>
+</span>
+</nav>
+</footer>
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
