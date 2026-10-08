@@ -1,0 +1,7 @@
+ReasonCode,ReasonDescription,ReasonGroup
+R-TEMP,Thawed or temperature abuse,QUALITY
+R-EXP,Past sell-by date,QUALITY
+R-DMG,Damaged packaging,HANDLING
+R-QLTY,Quality complaint,QUALITY
+R-WRONG,Wrong item supplied,FULFILLMENT
+R-CHG,Customer changed mind,CUSTOMER

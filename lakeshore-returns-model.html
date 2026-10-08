@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<title>Task 1: Lakeshore returns data in OneLake | fabric-labs</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" rel="stylesheet"/>
+<link crossorigin="anonymous" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<link href="assets/css/style.css" rel="stylesheet"/>
+<meta content="Load Lakeshore returns data directly into OneLake and model it against the inventory star schema." name="description"/><style>.lab-table-scroll{overflow-x:auto;max-width:100%} @media(max-width:575px){#linksMenu{position:static!important} footer.fixed-bottom{position:static} main.extra-padding{padding-bottom:30px}}</style></head>
+<body data-spy="scroll" data-target="#linksMenu">
+<nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+<div class="container d-flex justify-content-between">
+<span class="my-1 title text-black">fabric-labs</span>
+<span class="ml-2">
+<a class="d-flex align-items-center" href="https://ismayilsiyad.github.io/fabric-labs/">
+<svg class="bi bi-house-door-fill" fill="currentColor" height="16" viewbox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"></path>
+</svg>
+                     Home
+                </a>
+</span>
+</div>
+</nav>
+<hr color-"gray"=""/>
+<div class="container">
+<main class="row extra-padding">
+<aside class="col-sm-2">
+<nav class="toc sticky-top" id="linksMenu">
+<ul class="nav navbar-nav flex-column"></ul>
+</nav>
+</aside>
+<hr class=""/>
+<article class="col-sm-10 mb-5"><h1>Task 1: Lakeshore returns data in OneLake</h1><p class="progression-nav"><a href="lakeshore-mysql-foundations.html">Assignment 1: MySQL</a> · <a href="lakeshore-onelake-foundations.html">Assignment 2: OneLake</a> · <a href="lakeshore-inventory-modeling.html">Assignment 3: Inventory</a> · <a href="lakeshore-semantic-lifecycle.html">Assignment 4: Semantic lifecycle</a> · <a href="build-retail-ontology.html">Assignment 5: Ontology</a> · <a href="lakeshore-returns-model.html">Task 1: Returns data</a> · <a href="lakeshore-returns-analysis.html">Task 2: Returns in the model and ontology</a></p>
+<p>Lakeshore's store managers say returns are rising, but nobody knows which stores are the problem. In this task you bring Lakeshore returns data into OneLake and model it next to the inventory star schema you built in Assignment 3. Task 2 then adds it to the semantic model and ontology and answers the question.</p>
+<p>You need the workspace, <code>LakeshoreStaticDataLH</code> lakehouse and <code>LakeshoreInventoryDW</code> warehouse from Assignments 2 and 3. No MySQL is used here: the new files go straight into OneLake. Allow 60 minutes. The screenshots are from a real run; your names and times will differ slightly.</p>
+<p><strong>Download the Lakeshore static data files:</strong> <a href="data/ontology/new-experience/fact_store_returns.csv">fact_store_returns.csv</a> (252 returns), <a href="data/ontology/new-experience/fact_store_sales.csv">fact_store_sales.csv</a> (192 weekly sales rows), <a href="data/ontology/new-experience/dim_return_reasons.csv">dim_return_reasons.csv</a> (6 reasons) and the script <a href="data/ontology/new-experience/lakeshore-returns-model.sql">lakeshore-returns-model.sql</a>.</p>
+<h2 id="t1-load">Part 1: Load the returns files into OneLake</h2>
+<ol><li>Open your workspace, then open the <code>LakeshoreStaticDataLH</code> lakehouse.</li><li>In the Explorer, right-click <strong>Files</strong> and select Upload &gt; Upload files. Choose the three CSV files above. Confirm all three appear in the Files list.</li></ol><figure><img alt="Actual lakehouse Files list with the three returns CSV files." src="Images/lakeshore-returns/t1-files-list.png"/><figcaption>Actual lakehouse Files list with the three returns CSV files.</figcaption></figure>
+<ol start="3"><li>Right-click <code>fact_store_returns.csv</code> and select Load to Tables &gt; New table. Keep the suggested name <code>fact_store_returns</code>, keep Use header for column names selected, and select Load.</li><li>Repeat for <code>fact_store_sales.csv</code> and <code>dim_return_reasons.csv</code>. Load one file at a time and wait for each load to finish.</li></ol><figure><img alt="Actual Load to table dialog for fact_store_returns." src="Images/lakeshore-returns/t1-load-new-table.png"/><figcaption>Actual Load to table dialog for fact_store_returns.</figcaption></figure><figure><img alt="Actual lakehouse Tables list with the three new tables loaded." src="Images/lakeshore-returns/t1-tables-loaded2.png"/><figcaption>Actual lakehouse Tables list with the three new tables loaded.</figcaption></figure>
+<p><strong>Wait before the next part.</strong> New lakehouse tables take one to two minutes to appear in the lakehouse SQL analytics endpoint. If a query in Part 2 says an object name is invalid, wait a minute and run it again.</p>
+<h2 id="t1-connect">Part 2: Connect the warehouse to the lakehouse</h2>
+<ol><li>Open <code>LakeshoreInventoryDW</code>. In the Explorer select <strong>+ Warehouses</strong>, choose the <code>LakeshoreStaticDataLH</code> SQL analytics endpoint and select Confirm. It now appears under the warehouse so you can query it by three-part name, for example <code>LakeshoreStaticDataLH.dbo.fact_store_returns</code>.</li></ol><figure><img alt="Actual Explorer with the lakehouse endpoint added next to the warehouse." src="Images/lakeshore-returns/t1-add-endpoint.png"/><figcaption>Actual Explorer with the lakehouse endpoint added next to the warehouse.</figcaption></figure>
+<h2 id="t1-model">Part 3: Create the returns model tables</h2>
+<p>You follow the same pattern as Assignment 3: model tables get integer keys and look up StoreKey and ProductKey from <code>DimStoreModel</code> and <code>DimProductModel</code>. Open the script and run the statements <strong>one at a time</strong> in a New SQL query. Running them all at once makes the editor harder to debug.</p>
+<ol><li>Create and fill <code>DimReasonModel</code> (6 rows, key ReasonKey).</li><li>Create <code>FactReturns</code> with CREATE TABLE AS SELECT: join each return to the store, product and reason dimensions to get the three keys, and compute DateKey from ReturnDateTime.</li><li>Create <code>FactStoreSalesWeekly</code> the same way (store key, product key, week start, units sold).</li></ol><figure><img alt="Actual FactReturns create statement succeeding." src="Images/lakeshore-returns/t1-create-factreturns.png"/><figcaption>Actual FactReturns create statement succeeding.</figcaption></figure><figure><img alt="Actual FactStoreSalesWeekly create statement succeeding." src="Images/lakeshore-returns/t1-create-factsales.png"/><figcaption>Actual FactStoreSalesWeekly create statement succeeding.</figcaption></figure>
+<h2 id="t1-constraints">Part 4: Add keys and relationships</h2>
+<ol><li>Run the ALTER TABLE statements in the script: a primary key on <code>DimReasonModel</code>, and foreign keys from <code>FactReturns</code> to store, product and reason and from <code>FactStoreSalesWeekly</code> to store and product. As in Assignment 3 they are NOT ENFORCED, so they document intent; the checks in Part 5 prove the data.</li></ol><figure><img alt="Actual constraint catalog: one primary key and five foreign keys." src="Images/lakeshore-returns/t1-constraints.png"/><figcaption>Actual constraint catalog: one primary key and five foreign keys.</figcaption></figure>
+<h2 id="t1-check">Part 5: Validate before you trust it</h2>
+<ol><li>Run the row-count query. Expect 252 returns, 192 weekly sales rows and 6 reasons. A lower number means a join dropped rows because a store or product code did not match.</li><li>Run the grain query: one row per ReturnId, so it must return 0 duplicates.</li></ol><figure><img alt="Actual warehouse row counts: 252, 192 and 6." src="Images/lakeshore-returns/t1-dw-rowcounts.png"/><figcaption>Actual warehouse row counts: 252, 192 and 6.</figcaption></figure><figure><img alt="Actual grain check: 0 duplicate ReturnIds." src="Images/lakeshore-returns/t1-grain.png"/><figcaption>Actual grain check: 0 duplicate ReturnIds.</figcaption></figure>
+<h2 id="t1-answer">Part 6: Answer the first question</h2>
+<ol><li>Run the last query in the script. It divides units returned by units sold for each store.</li><li>Expect Denver (S-DEN-01) first: 1,221 units sold, 90 returned, $633.80 refunded, a 7.37% return rate. The next store, Boston, is 3.13%; Portland, Seattle, San Francisco and New York are between 2.1% and 2.5%.</li></ol><figure><img alt="Actual return rate by store: Denver 7.37% is far above the others." src="Images/lakeshore-returns/t1-answer.png"/><figcaption>Actual return rate by store: Denver 7.37% is far above the others.</figcaption></figure>
+<p>Compare a count of returns with a rate: a big store can have many returns and still be fine. The rate uses units sold from the new sales table, which is why that file is part of the task.</p>
+<h2 id="t1-submit">Part 7: Submit and continue</h2>
+<p>Submit the answer screenshot and the row-count screenshot. Keep the workspace: <a href="lakeshore-returns-analysis.html">Task 2</a> adds these tables to your semantic model and ontology.</p>
+</main>
+</div>
+<footer class="fixed-bottom d-print-none">
+<nav class="navbar navbar-light bg-light d-flex justify-content-around">
+<span class="navbar-text">
+                © 2026 Microsoft  | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a> | 
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a> | 
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a> | 
+                <i aria-hidden="true" class="fa fa-github"></i>
+<a class="ml-2" href="https://github.com/ismayilsiyad/fabric-labs" target="_blank">
+                    Source
+                </a>
+</span>
+</nav>
+</footer>
+<script crossorigin="anonymous" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script crossorigin="anonymous" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>
